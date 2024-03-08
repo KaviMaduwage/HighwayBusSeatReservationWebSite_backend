@@ -14,6 +14,8 @@ public class User {
     private boolean isActive;
     private String email;
     private String userName;
+    @Column(length = 64)
+    private String verificationCode;
     private boolean isEmailVerified;
     private Date lastLogin;
     @ManyToOne
@@ -82,5 +84,13 @@ public class User {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }
