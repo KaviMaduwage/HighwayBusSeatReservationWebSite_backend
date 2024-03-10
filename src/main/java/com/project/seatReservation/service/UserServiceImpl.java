@@ -24,4 +24,24 @@ public class UserServiceImpl implements UserService {
         return userList;
     }
 
+    @Override
+    public void saveUser(User user) {
+        userDao.save(user);
+    }
+
+    @Override
+    public String confirmEmail(String confirmationToken) {
+        User user = userDao.findByConfirmationToken(confirmationToken);
+
+        if(user != null)
+        {
+            //User user = userRepository.findByUserEmailIgnoreCase(token.getUserEntity().getUserEmail());
+            user.setEmailVerified(true);
+            user.setActive(true);
+            userDao.save(user);
+            return "Email verified successfully!";
+        }
+        return "Error: Couldn't verify email";
+    }
+
 }

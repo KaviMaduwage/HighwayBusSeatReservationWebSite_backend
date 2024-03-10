@@ -9,4 +9,7 @@ import java.util.List;
 public interface UserDao extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.email = :email")
     List<User> findUsersByEmail(String email);
+
+    @Query("SELECT u FROM User u WHERE u.verificationCode = :confirmationToken")
+    User findByConfirmationToken(String confirmationToken);
 }
