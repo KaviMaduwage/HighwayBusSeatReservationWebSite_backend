@@ -2,6 +2,8 @@ package com.project.seatReservation.service;
 
 import com.project.seatReservation.dao.UserDao;
 import com.project.seatReservation.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,6 +12,9 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     UserDao userDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     public UserServiceImpl(UserDao userDao) {
@@ -26,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
     }
 
@@ -42,6 +49,21 @@ public class UserServiceImpl implements UserService {
             return "Email verified successfully!";
         }
         return "Error: Couldn't verify email";
+    }
+
+    @Override
+    public boolean isLoginSuccess(User user) {
+        List<User> savedUser = userDao.findUsersByEmail(user.getEmail());
+        if(!savedUser.isEmpty()){
+            Boolean isPwdRight = passwordEncoder.matches(user.getPassword(), savedUser.get(0).getPassword());
+            if(isPwdRight){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
     }
 
 }
