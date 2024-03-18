@@ -26,19 +26,7 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletRequest request, HttpSession session){
-        boolean isSuccess = false;
-
-        List<User> savedUser = userService.findUsersByEmail(user.getEmail());
-
-        if(!savedUser.isEmpty()){
-            if(user.getPassword().equals(savedUser.get(0).getPassword())){
-                session.setAttribute("userLogin",user);
-                isSuccess = true;
-            }
-
-        }else{
-            isSuccess = false;
-        }
+        boolean isSuccess = userService.isLoginSuccess(user);
 
         if (isSuccess){
            return ResponseEntity.ok().body("success");
