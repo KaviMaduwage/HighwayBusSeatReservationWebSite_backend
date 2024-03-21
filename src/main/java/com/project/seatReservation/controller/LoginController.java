@@ -29,10 +29,16 @@ public class LoginController {
         boolean isSuccess = userService.isLoginSuccess(user);
 
         if (isSuccess){
+            List<User> user1 =  userService.findUsersByEmail(user.getEmail());
+            if(user1.get(0).getUserType().getUserTypeId() == 1){
+                return ResponseEntity.ok().body("/admin-dashboard");
+            }else if(user1.get(0).getUserType().getUserTypeId() == 3){
+                return ResponseEntity.ok().body("/passenger-dashboard");
+            }
            return ResponseEntity.ok().body("success");
 
         }else{
-            return ResponseEntity.ok().body("Invalid email or password");
+            return ResponseEntity.ok().body("Invalid");
         }
     }
 }
