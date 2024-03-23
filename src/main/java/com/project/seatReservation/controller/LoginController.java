@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @CrossOrigin
@@ -25,14 +27,21 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletRequest request, HttpSession session){
+    public ResponseEntity<?> registerUser(@RequestBody User user, HttpServletRequest request, HttpSession session){
         boolean isSuccess = userService.isLoginSuccess(user);
 
         if (isSuccess){
-           return ResponseEntity.ok().body("success");
+            List<User> user1 =  userService.findUsersByEmail(user.getEmail());
+
+            session.setAttribute("userLogin", user1);
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("userTypeId", user1.get(0).getUserType().getUserTypeId());
+            responseData.put("userName", user1.get(0).getUserName());
+
+           return ResponseEntity.ok().body(responseData);
 
         }else{
-            return ResponseEntity.ok().body("Invalid email or password");
+            return ResponseEntity.ok().body("Invalid");
         }
     }
 }
