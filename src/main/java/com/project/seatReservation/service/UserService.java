@@ -12,4 +12,6 @@ public interface UserService {
     String confirmEmail(String confirmationToken);
 
     boolean isLoginSuccess(User user);
+
+    void updateUser(User user);
 }

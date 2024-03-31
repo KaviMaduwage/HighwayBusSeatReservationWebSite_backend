@@ -40,4 +40,24 @@ public class EmailServiceImpl implements EmailService{
         }
 
     }
+
+    @Override
+    public void sendEmails(String toAddress, String fromAddress, String senderName, String subject, String content) {
+        try{
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message);
+
+            mimeMessageHelper.setFrom(fromAddress);
+            mimeMessageHelper.setTo(toAddress);
+            mimeMessageHelper.setSubject(subject);
+
+            mimeMessageHelper.setText(content,true);
+
+            javaMailSender.send(message);
+
+
+        }catch (Exception e){
+            throw new RuntimeException("Error sending email: " + e.getMessage(), e);
+        }
+    }
 }

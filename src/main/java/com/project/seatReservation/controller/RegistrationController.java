@@ -109,7 +109,7 @@ public class RegistrationController {
         Request savedRequest = requestService.saveRequest(request);
 
         if(savedRequest != null){
-            message = "Request is sent to admin. After admin's confirmation, you will get your login credentials to the given email address.";
+            message = "Request is sent to admin. After admin's confirmation, your account will be activated";
         }else{
             message = "Something is wrong";
         }

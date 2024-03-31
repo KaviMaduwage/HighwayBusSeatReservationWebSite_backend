@@ -59,4 +59,12 @@ public class Request {
     public void setAcceptedDate(Date acceptedDate) {
         this.acceptedDate = acceptedDate;
     }
+
+    public boolean isReject() {
+        return isReject;
+    }
+
+    public void setReject(boolean reject) {
+        isReject = reject;
+    }
 }
