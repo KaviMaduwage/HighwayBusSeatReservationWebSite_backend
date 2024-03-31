@@ -7,9 +7,11 @@ import java.util.List;
 public interface UserService {
     List<User> findUsersByEmail(String email);
 
-    void saveUser(User user);
+    User saveUser(User user);
 
     String confirmEmail(String confirmationToken);
 
     boolean isLoginSuccess(User user);
+
+    void updateUser(User user);
 }

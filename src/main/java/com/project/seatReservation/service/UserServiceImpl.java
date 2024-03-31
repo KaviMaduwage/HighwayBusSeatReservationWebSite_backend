@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -30,10 +31,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(User user) {
+    public User saveUser(User user) {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
+        return user;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isLoginSuccess(User user) {
         List<User> savedUser = userDao.findUsersByEmail(user.getEmail());
-        if(!savedUser.isEmpty()){
+        if(!savedUser.isEmpty() && savedUser.get(0).isActive()){
             Boolean isPwdRight = passwordEncoder.matches(user.getPassword(), savedUser.get(0).getPassword());
             if(isPwdRight){
                 return true;
@@ -64,6 +66,12 @@ public class UserServiceImpl implements UserService {
         }else{
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        userDao.save(user);
     }
 
 }

@@ -1,43 +1,58 @@
 package com.project.seatReservation.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.seatReservation.model.BusOwner;
+import com.project.seatReservation.model.Request;
 import com.project.seatReservation.model.User;
+import com.project.seatReservation.service.BusOwnerService;
 import com.project.seatReservation.service.EmailService;
+import com.project.seatReservation.service.RequestService;
 import com.project.seatReservation.service.UserService;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @CrossOrigin
 public class RegistrationController {
     UserService userService;
 
+    BusOwnerService busOwnerService;
+
+    RequestService requestService;
+
     JavaMailSender javaMailSender;
 
     EmailService emailService;
 
-    public RegistrationController(UserService userService,  EmailService emailService, JavaMailSender javaMailSender) {
+    public RegistrationController(UserService userService,  EmailService emailService,
+                                  JavaMailSender javaMailSender, BusOwnerService busOwnerService, RequestService requestService) {
         this.userService = userService;
 
         this.emailService = emailService;
+        this.busOwnerService = busOwnerService;
+        this.requestService = requestService;
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletRequest request)
+    public ResponseEntity<String> registerUser(@RequestBody Map<String,Object> userData, HttpServletRequest request)
             throws UnsupportedEncodingException, MessagingException {
 
         String message ="";
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        User user = objectMapper.convertValue(userData.get("user"), User.class);
+
 
         String email = user.getEmail();
 
@@ -45,31 +60,61 @@ public class RegistrationController {
 
         if(userList == null || userList.isEmpty()){
 
-            String randomCode = RandomString.make(64);
-            user.setEmailVerified(false);
-            user.setVerificationCode(randomCode);
+            if(user != null && user.getUserType().getUserTypeId() == 2){
+                BusOwner busOwner = objectMapper.convertValue(userData.get("busOwner"), BusOwner.class);
+                message = registerBusOwner(user,busOwner);
+            }else {
 
-            userService.saveUser(user);
+                String randomCode = RandomString.make(64);
+                user.setEmailVerified(false);
+                user.setVerificationCode(randomCode);
 
-            String siteURL = request.getRequestURL().toString();
-            siteURL = siteURL.replace(request.getServletPath(), "");
+                userService.saveUser(user);
 
-
-            String toAddress = user.getEmail();
-            String fromAddress = "myseatofficial@gmail.com";
-            String senderName = "My Seat";
-            String subject = "Please verify your registration";
-            String content = "To confirm your account, please click here : "
-                    +"http://localhost:8080/confirm-account?token="+user.getVerificationCode();
+                String siteURL = request.getRequestURL().toString();
+                siteURL = siteURL.replace(request.getServletPath(), "");
 
 
-            message = emailService.sendVerificationEmail(toAddress, fromAddress,senderName,subject,content);
+                String toAddress = user.getEmail();
+                String fromAddress = "myseatofficial@gmail.com";
+                String senderName = "My Seat";
+                String subject = "Please verify your registration";
+                String content = "To confirm your account, please click here : "
+                        + "http://localhost:8080/confirm-account?token=" + user.getVerificationCode();
 
-            }else{
-                message = "Email already exists.";
+
+                message = emailService.sendVerificationEmail(toAddress, fromAddress, senderName, subject, content);
             }
+        }else{
+                message = "Email already exists.";
+        }
 
-            return new ResponseEntity<>(message, HttpStatus.OK);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    private String registerBusOwner(User user, BusOwner busOwner) {
+        String message = "";
+
+        user.setEmailVerified(true);
+        User savedUser = userService.saveUser(user);
+
+        busOwner.setUser(savedUser);
+
+        busOwnerService.saveBusOwner(busOwner);
+
+        Request request = new Request();
+        request.setBusOwner(busOwner);
+        request.setRequestedDate(new Date());
+
+        Request savedRequest = requestService.saveRequest(request);
+
+        if(savedRequest != null){
+            message = "Request is sent to admin. After admin's confirmation, your account will be activated";
+        }else{
+            message = "Something is wrong";
+        }
+
+        return message;
     }
 
     @RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
