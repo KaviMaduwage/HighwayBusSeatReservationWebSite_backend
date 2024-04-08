@@ -4,6 +4,8 @@ import com.project.seatReservation.dao.BusOwnerDao;
 import com.project.seatReservation.model.BusOwner;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BusOwnerServiceImpl implements BusOwnerService{
     BusOwnerDao busOwnerDao;
@@ -15,5 +17,10 @@ public class BusOwnerServiceImpl implements BusOwnerService{
     @Override
     public void saveBusOwner(BusOwner busOwner) {
         busOwnerDao.save(busOwner);
+    }
+
+    @Override
+    public List<BusOwner> findBusOwnerByUserId(int busOwnerUserId) {
+        return busOwnerDao.findBusOwnerByUserId(busOwnerUserId);
     }
 }

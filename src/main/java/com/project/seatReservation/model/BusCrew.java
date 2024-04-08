@@ -13,14 +13,29 @@ public class BusCrew {
     private int busCrewId;
     private String name;
     private String address;
-    private String gender;
+
     private String mobileNo;
     private Date dob;
-    private String photoURL;
+    private String nic;
+    private String profileImage;
+    private String licenseNo;
+    private Date expiryDate;
+    private Date issuesDate;
+
+    @ManyToOne
+    @JoinColumn(name = "bus_owner_id")
+    private BusOwner busOwner;
+
+
+    @ManyToOne
+    @JoinColumn(name = "bus_crew_type_id")
+    private BusCrewType busCrewType;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    private int ntcNo;
+    private String status;
 
     public int getBusCrewId() {
         return busCrewId;
@@ -46,13 +61,6 @@ public class BusCrew {
         this.address = address;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
 
     public String getMobileNo() {
         return mobileNo;
@@ -70,12 +78,12 @@ public class BusCrew {
         this.dob = dob;
     }
 
-    public String getPhotoURL() {
-        return photoURL;
+    public String getProfileImage() {
+        return profileImage;
     }
 
-    public void setPhotoURL(String photoURL) {
-        this.photoURL = photoURL;
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public int getAge(){
@@ -103,5 +111,69 @@ public class BusCrew {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public BusCrewType getBusCrewType() {
+        return busCrewType;
+    }
+
+    public void setBusCrewType(BusCrewType busCrewType) {
+        this.busCrewType = busCrewType;
+    }
+
+    public int getNtcNo() {
+        return ntcNo;
+    }
+
+    public void setNtcNo(int ntcNo) {
+        this.ntcNo = ntcNo;
+    }
+
+    public String getNic() {
+        return nic;
+    }
+
+    public void setNic(String nic) {
+        this.nic = nic;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getLicenseNo() {
+        return licenseNo;
+    }
+
+    public void setLicenseNo(String licenseNo) {
+        this.licenseNo = licenseNo;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public Date getIssuesDate() {
+        return issuesDate;
+    }
+
+    public void setIssuesDate(Date issuesDate) {
+        this.issuesDate = issuesDate;
+    }
+
+    public BusOwner getBusOwner() {
+        return busOwner;
+    }
+
+    public void setBusOwner(BusOwner busOwner) {
+        this.busOwner = busOwner;
     }
 }
