@@ -37,6 +37,7 @@ public class LoginController {
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("userTypeId", user1.get(0).getUserType().getUserTypeId());
             responseData.put("userName", user1.get(0).getUserName());
+            responseData.put("userId", user1.get(0).getUserId());
 
            return ResponseEntity.ok().body(responseData);
 
