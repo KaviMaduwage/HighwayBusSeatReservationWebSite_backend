@@ -1,9 +1,6 @@
 package com.project.seatReservation.controller;
 
-import com.project.seatReservation.model.BusCrew;
-import com.project.seatReservation.model.BusCrewType;
-import com.project.seatReservation.model.BusOwner;
-import com.project.seatReservation.model.User;
+import com.project.seatReservation.model.*;
 import com.project.seatReservation.service.BusCrewService;
 import com.project.seatReservation.service.BusOwnerService;
 import com.project.seatReservation.service.UserService;
@@ -53,7 +50,18 @@ public class BusCrewController {
             String[] userNameArray = busCrew.getName().split(" ");
             String userName = (userNameArray.length > 0 ? userNameArray[0] : "");
             user.setUserName(userName);
-            user.setUserType(user.getUserType());
+
+            String userTypeDes = busCrew.getBusCrewType().getDescription();
+            UserType userType = new UserType();
+            userType.setDescription(userTypeDes);
+
+            if(userTypeDes.equalsIgnoreCase("driver")){
+                userType.setUserTypeId(4);
+            } else if (userTypeDes.equalsIgnoreCase("conductor")) {
+                userType.setUserTypeId(5);
+            }
+            user.setUserType(userType);
+
             user.setPassword(GENERATED_PASSWORD);
 
             User savedUser = userService.saveUser(user);
@@ -127,6 +135,10 @@ public class BusCrewController {
 
         if(busCrew != null){
             busCrewService.deleteStaffMember(busCrew);
+
+            User user = busCrew.getUser();
+            user.setActive(false);
+            userService.updateUser(user);
             message = "Successfully deleted";
         }else{
             message = "No member exists.";
