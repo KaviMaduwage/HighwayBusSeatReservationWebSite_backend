@@ -14,4 +14,8 @@ public interface UserService {
     boolean isLoginSuccess(User user);
 
     void updateUser(User user);
+
+    User findUserByUserId(Integer integer);
+
+    String changePassword(User user, String currentPassword, String newPassword);
 }
