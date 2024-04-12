@@ -147,4 +147,23 @@ public class BusCrewController {
 
         return ResponseEntity.ok().body(message);
     }
+
+    @RequestMapping(value = "/searchMember", method = RequestMethod.POST)
+    public ResponseEntity<?> searchBusCrew(@RequestBody Map<String,String> requestData){
+        List<BusCrew> busCrewList = new ArrayList<>();
+        String namePhrase = requestData.get("name");
+        String searchCrewTypeId = requestData.get("jobType");
+        String searchStatus = requestData.get("status");
+        String userId = requestData.get("userId");
+        int busOwnerId = 0;
+
+        List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(Integer.parseInt(userId));
+        if(busOwnerList != null && !busOwnerList.isEmpty()){
+            busOwnerId = busOwnerList.get(0).getBusOwnerId();
+        }
+
+        busCrewList = busCrewService.findBusCrewByNameJobTypeStatusAndBusOwnerId(namePhrase, Integer.valueOf(searchCrewTypeId), searchStatus, busOwnerId);
+
+        return ResponseEntity.ok().body(busCrewList.toArray());
+    }
 }

@@ -12,4 +12,8 @@ public interface BusCrewDao extends JpaRepository<BusCrew, Integer> {
 
     @Query("SELECT b FROM BusCrew b WHERE b.busCrewId = :memberId")
     BusCrew findBusCrewById(int memberId);
+
+    @Query("SELECT b FROM BusCrew b WHERE ('' = :namePhrase OR b.name LIKE CONCAT('%', :namePhrase, '%')) AND ( 0 = :crewTypeId OR b.busCrewType.busCrewTypeId = :crewTypeId)" +
+            "AND ('' = :searchStatus OR b.status = :searchStatus ) AND b.busOwner.busOwnerId = :busOwnerId")
+    List<BusCrew> findBusCrewByNameJobTypeStatusAndBusOwnerId(String namePhrase, int crewTypeId, String searchStatus, int busOwnerId);
 }
