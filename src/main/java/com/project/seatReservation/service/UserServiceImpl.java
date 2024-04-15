@@ -74,4 +74,29 @@ public class UserServiceImpl implements UserService {
         userDao.save(user);
     }
 
+    @Override
+    public User findUserByUserId(Integer userId) {
+        return userDao.findUserByUserId(userId);
+    }
+
+    @Transactional
+    @Override
+    public String changePassword(User user, String currentPassword, String newPassword) {
+        String message = "";
+        List<User> savedUser = userDao.findUsersByEmail(user.getEmail());
+        Boolean isCurrentPwdRight = passwordEncoder.matches(currentPassword, savedUser.get(0).getPassword());
+
+        if(isCurrentPwdRight){
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userDao.save(user);
+            message = "Password reset is success";
+
+        }else{
+            message = "Current password is not match with the existing password";
+        }
+
+        return message;
+    }
+
+
 }

@@ -45,4 +45,30 @@ public class LoginController {
             return ResponseEntity.ok().body("Invalid");
         }
     }
+    @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> requestBody){
+        String message = "";
+
+        String currentPassword = requestBody.get("currentPassword");
+        String newPassword = requestBody.get("newPassword");
+        String userId = requestBody.get("userId");
+
+        User user = userService.findUserByUserId(Integer.valueOf(userId));
+        Map<String,String> responseData = new HashMap<>();
+
+        if(user != null){
+            message = userService.changePassword(user,currentPassword, newPassword);
+            if(message.contains("success")){
+                responseData.put("status","success");
+            }
+        }else{
+            responseData.put("status","fail");
+            message = "No user";
+        }
+
+        responseData.put("message", message);
+
+
+        return ResponseEntity.ok().body(responseData);
+    }
 }
