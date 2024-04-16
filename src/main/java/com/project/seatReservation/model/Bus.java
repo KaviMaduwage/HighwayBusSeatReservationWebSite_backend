@@ -11,7 +11,7 @@ public class Bus {
 
     private String name;
     private String plateNo;
-    private String busNo;
+
     private String permitNo;
     private int noOfRows;
     private int noOfColumns;
@@ -47,13 +47,6 @@ public class Bus {
         this.plateNo = plateNo;
     }
 
-    public String getBusNo() {
-        return busNo;
-    }
-
-    public void setBusNo(String busNo) {
-        this.busNo = busNo;
-    }
 
     public String getPermitNo() {
         return permitNo;
