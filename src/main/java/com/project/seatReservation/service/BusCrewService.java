@@ -19,4 +19,6 @@ public interface BusCrewService {
     void deleteStaffMember(BusCrew busCrew);
 
     List<BusCrew> findBusCrewByNameJobTypeStatusAndBusOwnerId(String namePhrase, int crewTypeId, String searchStatus, int busOwnerId);
+
+    List<BusCrew> loadBusCrewByTypeInTravelService(int busOwnerId, int crewTypeId);
 }

@@ -56,4 +56,9 @@ public class BusCrewServiceImpl implements BusCrewService{
     public List<BusCrew> findBusCrewByNameJobTypeStatusAndBusOwnerId(String namePhrase, int crewTypeId, String searchStatus, int busOwnerId) {
         return busCrewDao.findBusCrewByNameJobTypeStatusAndBusOwnerId(namePhrase,crewTypeId,searchStatus,busOwnerId);
     }
+
+    @Override
+    public List<BusCrew> loadBusCrewByTypeInTravelService(int busOwnerId, int crewTypeId) {
+        return busCrewDao.loadBusCrewByTypeInTravelService(busOwnerId,crewTypeId);
+    }
 }

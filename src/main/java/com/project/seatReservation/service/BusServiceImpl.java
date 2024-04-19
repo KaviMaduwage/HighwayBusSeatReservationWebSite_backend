@@ -55,4 +55,9 @@ public class BusServiceImpl implements BusService{
     public List<Seat> findSeatStructureByBusId(int busId) {
         return seatDao.findSeatStructureByBusId(busId);
     }
+
+    @Override
+    public List<Bus> loadAllBusDetailsInTravelService(int busOwnerId) {
+        return busDao.loadAllBusDetailsInTravelService(busOwnerId);
+    }
 }
