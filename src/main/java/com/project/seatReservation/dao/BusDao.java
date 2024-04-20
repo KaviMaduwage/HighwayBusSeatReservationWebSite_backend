@@ -12,4 +12,7 @@ public interface BusDao extends JpaRepository<Bus, Integer> {
 
     @Query("SELECT b FROM Bus b WHERE b.busId = :busId")
     Bus findBusById(int busId);
+
+    @Query("SELECT b FROM Bus b WHERE b.busOwner.busOwnerId = :busOwnerId")
+    List<Bus> loadAllBusDetailsInTravelService(int busOwnerId);
 }

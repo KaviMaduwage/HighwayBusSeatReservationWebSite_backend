@@ -19,4 +19,6 @@ public interface BusService {
     void saveSeatStructure(List<Seat> seatList);
 
     List<Seat> findSeatStructureByBusId(int busId);
+
+    List<Bus> loadAllBusDetailsInTravelService(int busOwnerId);
 }

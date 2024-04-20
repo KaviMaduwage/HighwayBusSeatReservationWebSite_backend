@@ -8,10 +8,7 @@ import com.project.seatReservation.service.BusOwnerService;
 import com.project.seatReservation.service.BusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,6 +119,15 @@ public class BusController {
         }
 
         return ResponseEntity.ok().body(seatStructure.toArray());
+    }
+    @RequestMapping(value = "/loadAllBusDetailsInTravelService", method = RequestMethod.POST)
+    public ResponseEntity<?> loadAllBusDetailsInTravelService(@RequestBody Map<String, Integer> requestBody){
+        List<Bus> busList = new ArrayList<>();
+        int userId = requestBody.get("userId");
+        List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
+        busList = busService.loadAllBusDetailsInTravelService(busOwnerList.get(0).getBusOwnerId());
+
+        return ResponseEntity.ok().body(busList.toArray());
     }
 
 

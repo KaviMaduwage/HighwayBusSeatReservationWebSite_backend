@@ -166,4 +166,28 @@ public class BusCrewController {
 
         return ResponseEntity.ok().body(busCrewList.toArray());
     }
+
+    @RequestMapping(value = "/loadDriversInTravelService", method = RequestMethod.POST)
+    public ResponseEntity<?> loadDriversInTravelService(@RequestBody Map<String, Integer> requestBody){
+
+        int userId = requestBody.get("userId");
+        List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
+        int busOwnerId = busOwnerList.get(0).getBusOwnerId();
+        int crewTypeId = 1;
+        List<BusCrew> driverList = busCrewService.loadBusCrewByTypeInTravelService(busOwnerId, crewTypeId);
+
+        return ResponseEntity.ok().body(driverList.toArray());
+    }
+
+    @RequestMapping(value = "/loadConductorsInTravelService", method = RequestMethod.POST)
+    public ResponseEntity<?> loadConductorsInTravelService(@RequestBody Map<String, Integer> requestBody){
+
+        int userId = requestBody.get("userId");
+        List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
+        int busOwnerId = busOwnerList.get(0).getBusOwnerId();
+        int crewTypeId = 2;
+        List<BusCrew> driverList = busCrewService.loadBusCrewByTypeInTravelService(busOwnerId, crewTypeId);
+
+        return ResponseEntity.ok().body(driverList.toArray());
+    }
 }
