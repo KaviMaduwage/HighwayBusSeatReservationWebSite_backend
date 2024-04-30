@@ -20,4 +20,7 @@ public interface ScheduleDao extends JpaRepository<Schedule, Integer> {
     @Query("SELECT s FROM Schedule s WHERE DATE(s.tripDateStr) = :date AND ('' = :origin OR s.origin = :origin) AND ('' = :destination OR s.destination = :destination) " +
             "AND (0 = :routeId OR s.bus.route.routeId = :routeId)")
     List<Schedule> findBusScheduleByDateTownAndRoute(Date date, String origin, String destination, int routeId);
+
+    @Query("SELECT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.busCrew.busCrewId = :busCrewId AND s.tripDateStr = :today")
+    List<Schedule> findBusCrewTodaySchedule(String today, int busCrewId);
 }

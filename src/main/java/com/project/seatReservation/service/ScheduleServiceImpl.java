@@ -68,4 +68,9 @@ public class ScheduleServiceImpl implements ScheduleService{
     public List<Schedule> findBusScheduleByDateTownAndRoute(Date date, String origin, String destination, int routeId) {
         return scheduleDao.findBusScheduleByDateTownAndRoute(date,origin,destination,routeId);
     }
+
+    @Override
+    public List<Schedule> findBusCrewTodaySchedule(String today, int busCrewId) {
+        return scheduleDao.findBusCrewTodaySchedule(today,busCrewId);
+    }
 }

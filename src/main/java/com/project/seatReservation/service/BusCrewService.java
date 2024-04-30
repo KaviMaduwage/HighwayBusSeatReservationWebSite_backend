@@ -21,4 +21,10 @@ public interface BusCrewService {
     List<BusCrew> findBusCrewByNameJobTypeStatusAndBusOwnerId(String namePhrase, int crewTypeId, String searchStatus, int busOwnerId);
 
     List<BusCrew> loadBusCrewByTypeInTravelService(int busOwnerId, int crewTypeId);
+
+    List<BusCrew> findBusCrewByUserId(int userId);
+
+    BusCrew findDriverByScheduleId(int scheduleId);
+
+    BusCrew findConductorByScheduleId(int scheduleId);
 }

@@ -1,9 +1,7 @@
 package com.project.seatReservation.controller;
 
 import com.project.seatReservation.model.*;
-import com.project.seatReservation.service.BusCrewService;
-import com.project.seatReservation.service.BusOwnerService;
-import com.project.seatReservation.service.UserService;
+import com.project.seatReservation.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @CrossOrigin
@@ -22,11 +19,16 @@ public class BusCrewController {
     BusCrewService busCrewService;
     BusOwnerService busOwnerService;
     UserService userService;
+    ScheduleService scheduleService;
+    ReservationService reservationService;
 
-    public BusCrewController(BusCrewService busCrewService, UserService userService, BusOwnerService busOwnerService) {
+    public BusCrewController(BusCrewService busCrewService, UserService userService, BusOwnerService busOwnerService,
+                             ScheduleService scheduleService,ReservationService reservationService) {
         this.busCrewService = busCrewService;
         this.userService = userService;
         this.busOwnerService = busOwnerService;
+        this.scheduleService = scheduleService;
+        this.reservationService = reservationService;
     }
 
     @RequestMapping(value = "/loadBusCrewTypes", method = RequestMethod.GET)
@@ -180,7 +182,7 @@ public class BusCrewController {
     }
 
     @RequestMapping(value = "/loadConductorsInTravelService", method = RequestMethod.POST)
-    public ResponseEntity<?> loadConductorsInTravelService(@RequestBody Map<String, Integer> requestBody){
+    public ResponseEntity<?> loadConductorsInTravelService(@RequestBody Map<String, Integer> requestBody) {
 
         int userId = requestBody.get("userId");
         List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
@@ -190,4 +192,82 @@ public class BusCrewController {
 
         return ResponseEntity.ok().body(driverList.toArray());
     }
+
+    @RequestMapping(value = "/findScheduleByCrewUserId", method = RequestMethod.POST)
+    public ResponseEntity<?> findScheduleByCrewUserId(@RequestBody Map<String, Integer> requestBody) {
+        List<Schedule> scheduleList = new ArrayList<>();
+        List<Map<String,Object>> resultList = new ArrayList<>();
+
+        int userId = requestBody.get("userId");
+        List<BusCrew> busCrewList = busCrewService.findBusCrewByUserId(userId);
+
+        if (!busCrewList.isEmpty()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String today = sdf.format(new Date());
+
+            BusCrew busCrew = busCrewList.get(0);
+            scheduleList = scheduleService.findBusCrewTodaySchedule(today, busCrew.getBusCrewId());
+
+
+
+            if(scheduleList != null && !scheduleList.isEmpty()){
+                for(Schedule schedule : scheduleList){
+                    Map<String,Object> scheduleResult = new HashMap<>();
+
+                    int scheduleId = schedule.getScheduleId();
+                    BusCrew driver = busCrewService.findDriverByScheduleId(scheduleId);
+                    BusCrew conductor = busCrewService.findConductorByScheduleId(scheduleId);
+
+                    String availableSeatsStr = getBookedSeatAmountByScheduleId(schedule.getScheduleId());
+
+                    scheduleResult.put("schedule",schedule);
+                    scheduleResult.put("driverName",(driver != null ? driver.getName() : ""));
+                    scheduleResult.put("conductorName",(conductor != null ? conductor.getName() : ""));
+                    scheduleResult.put("availableSeats",availableSeatsStr);
+
+                    resultList.add(scheduleResult);
+
+                }
+            }
+        }
+
+
+        return ResponseEntity.ok().body(resultList.toArray());
+    }
+
+    private String getBookedSeatAmountByScheduleId(int scheduleId) {
+        int availableSeat = 0;
+        String availableSeatsStr = "";
+
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleId);
+
+        if(scheduleList != null && !scheduleList.isEmpty()){
+            Schedule s = scheduleList.get(0);
+            int allSeats = s.getBus().getNoOfSeats();
+            List<Reservation> reservationList = reservationService.findReservationsByScheduleId(scheduleId);
+
+            availableSeat = allSeats - reservationList.size();
+            availableSeatsStr = reservationList.size() +"/"+allSeats;
+        }
+
+
+        return availableSeatsStr;
+    }
+
+    @RequestMapping(value = "/findDriverByScheduleId", method = RequestMethod.POST)
+    public ResponseEntity<?> findDriverByScheduleId(@RequestBody Map<String, Integer> requestBody) {
+
+        int scheduleId = requestBody.get("scheduleId");
+        BusCrew driver = busCrewService.findDriverByScheduleId(scheduleId);
+        return ResponseEntity.ok().body(driver);
+    }
+
+    @RequestMapping(value = "/findConductorByScheduleId", method = RequestMethod.POST)
+    public ResponseEntity<?> findConductorByScheduleId(@RequestBody Map<String, Integer> requestBody) {
+
+        int scheduleId = requestBody.get("scheduleId");
+        BusCrew conductor = busCrewService.findConductorByScheduleId(scheduleId);
+        return ResponseEntity.ok().body(conductor);
+    }
+
 }
