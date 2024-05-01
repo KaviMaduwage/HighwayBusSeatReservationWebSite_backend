@@ -43,11 +43,22 @@ public class ScheduleController {
 
         Schedule schedule = objectMapper.convertValue(requestBody.get("schedule"), Schedule.class);
 
-        String driverIdStr = (String) requestBody.get("driverId");
-        int driverId =(driverIdStr.equals("") ? 0 : Integer.parseInt(driverIdStr));
+        Object driverIdObj = requestBody.get("driverId");
+        int driverId = 0;
+        int conductorId = 0;
+        if(driverIdObj instanceof Integer) {
+            driverId = (int) driverIdObj;
+        }else if(driverIdObj instanceof String){
+            driverId = Integer.parseInt((String) driverIdObj);
+        }
 
-        String conductorIdStr = (String) requestBody.get("conductorId");
-        int conductorId =(conductorIdStr.equals("") ? 0 : Integer.parseInt(conductorIdStr));
+        Object conductorIdObj = requestBody.get("conductorId");
+
+        if(conductorIdObj instanceof Integer){
+            conductorId = (int) conductorIdObj;
+        }else if(conductorIdObj instanceof String){
+            conductorId = Integer.parseInt((String) conductorIdObj);
+        }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
