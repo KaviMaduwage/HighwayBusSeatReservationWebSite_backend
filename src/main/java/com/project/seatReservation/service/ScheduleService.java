@@ -27,4 +27,6 @@ public interface ScheduleService {
     List<Schedule> findBusScheduleByDateTownAndRoute(Date date, String origin, String destination, int routeId);
 
     List<Schedule> findBusCrewTodaySchedule(String today, int busCrewId);
+
+    List<Schedule> findScheduleByBusOwnerIdDate(String searchDate, int busOwnerId);
 }

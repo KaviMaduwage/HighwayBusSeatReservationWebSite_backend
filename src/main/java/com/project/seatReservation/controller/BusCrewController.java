@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -268,6 +269,69 @@ public class BusCrewController {
         int scheduleId = requestBody.get("scheduleId");
         BusCrew conductor = busCrewService.findConductorByScheduleId(scheduleId);
         return ResponseEntity.ok().body(conductor);
+    }
+
+    @RequestMapping(value = "/findScheduleByCrewUserIdDate", method = RequestMethod.POST)
+    public ResponseEntity<?> findScheduleByCrewUserIdDate(@RequestBody Map<String,String> requestBody){
+        List<Schedule> scheduleList = new ArrayList<>();
+        List<Map<String,Object>> resultList = new ArrayList<>();
+
+        int userId = (requestBody.get("userId") != "" ? Integer.parseInt(requestBody.get("userId")) : 0) ;
+        int userTypeId = (requestBody.get("userTypeId") != "" ? Integer.parseInt(requestBody.get("userTypeId")) : 0) ;
+        String searchDate = requestBody.get("date") ;
+
+        if(userTypeId == 1){
+            //admin
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date date = sdf.parse(searchDate);
+                scheduleList = scheduleService.findScheduleByDate(date);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+
+        }else if(userTypeId == 2){
+            //bus owner
+            List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
+            if(!busOwnerList.isEmpty()){
+                BusOwner busOwner = busOwnerList.get(0);
+                scheduleList = scheduleService.findScheduleByBusOwnerIdDate(searchDate, busOwner.getBusOwnerId());
+            }
+
+        }else if(userTypeId == 4 || userTypeId == 5){
+            //bus crew
+            List<BusCrew> busCrewList = busCrewService.findBusCrewByUserId(userId);
+            if(!busCrewList.isEmpty()){
+
+                BusCrew busCrew = busCrewList.get(0);
+                scheduleList = scheduleService.findBusCrewTodaySchedule(searchDate, busCrew.getBusCrewId());
+            }
+
+        }
+
+
+        if(scheduleList != null && !scheduleList.isEmpty()){
+            for(Schedule schedule : scheduleList){
+                Map<String,Object> scheduleResult = new HashMap<>();
+
+                int scheduleId = schedule.getScheduleId();
+                BusCrew driver = busCrewService.findDriverByScheduleId(scheduleId);
+                BusCrew conductor = busCrewService.findConductorByScheduleId(scheduleId);
+
+                String availableSeatsStr = getBookedSeatAmountByScheduleId(schedule.getScheduleId());
+
+                scheduleResult.put("schedule",schedule);
+                scheduleResult.put("driverName",(driver != null ? driver.getName() : ""));
+                scheduleResult.put("conductorName",(conductor != null ? conductor.getName() : ""));
+                scheduleResult.put("availableSeats",availableSeatsStr);
+
+                resultList.add(scheduleResult);
+
+            }
+        }
+
+
+        return ResponseEntity.ok().body(resultList.toArray());
     }
 
 }
