@@ -2,12 +2,10 @@ package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.BusOwner;
+import com.project.seatReservation.model.Passenger;
 import com.project.seatReservation.model.Request;
 import com.project.seatReservation.model.User;
-import com.project.seatReservation.service.BusOwnerService;
-import com.project.seatReservation.service.EmailService;
-import com.project.seatReservation.service.RequestService;
-import com.project.seatReservation.service.UserService;
+import com.project.seatReservation.service.*;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +32,17 @@ public class RegistrationController {
     JavaMailSender javaMailSender;
 
     EmailService emailService;
+    PassengerService passengerService;
 
     public RegistrationController(UserService userService,  EmailService emailService,
-                                  JavaMailSender javaMailSender, BusOwnerService busOwnerService, RequestService requestService) {
+                                  JavaMailSender javaMailSender, BusOwnerService busOwnerService, RequestService requestService,
+                                  PassengerService passengerService) {
         this.userService = userService;
 
         this.emailService = emailService;
         this.busOwnerService = busOwnerService;
         this.requestService = requestService;
+        this.passengerService = passengerService;
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
@@ -69,7 +70,7 @@ public class RegistrationController {
                 user.setEmailVerified(false);
                 user.setVerificationCode(randomCode);
 
-                userService.saveUser(user);
+                User savedUser = userService.saveUser(user);
 
                 String siteURL = request.getRequestURL().toString();
                 siteURL = siteURL.replace(request.getServletPath(), "");
@@ -80,7 +81,7 @@ public class RegistrationController {
                 String senderName = "My Seat";
                 String subject = "Please verify your registration";
                 String content = "To confirm your account, please click here : "
-                        + "http://localhost:8080/confirm-account?token=" + user.getVerificationCode();
+                        + "http://localhost:8080/confirm-account?token=" + user.getVerificationCode()+ "&userId=" + savedUser.getUserId();
 
 
                 message = emailService.sendVerificationEmail(toAddress, fromAddress, senderName, subject, content);
@@ -118,11 +119,17 @@ public class RegistrationController {
     }
 
     @RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<String> confirmUserAccount(@RequestParam("token")String confirmationToken) {
+    public ResponseEntity<String> confirmUserAccount(@RequestParam("token")String confirmationToken, @RequestParam("userId")int userId) {
 
         String message = userService.confirmEmail(confirmationToken);
 
         if(message.equalsIgnoreCase("Email verified successfully!")){
+            User user  = userService.findUserByUserId(userId);
+            Passenger passenger = new Passenger();
+            passenger.setUser(user);
+            passenger.setName(user.getUserName());
+
+            passengerService.savePassenger(passenger);
 
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", "http://localhost:3000/signIn")
