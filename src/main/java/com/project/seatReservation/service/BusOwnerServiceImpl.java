@@ -23,4 +23,9 @@ public class BusOwnerServiceImpl implements BusOwnerService{
     public List<BusOwner> findBusOwnerByUserId(int busOwnerUserId) {
         return busOwnerDao.findBusOwnerByUserId(busOwnerUserId);
     }
+
+    @Override
+    public List<BusOwner> findActiveBusOwnerList() {
+        return busOwnerDao.findActiveBusOwnerList();
+    }
 }

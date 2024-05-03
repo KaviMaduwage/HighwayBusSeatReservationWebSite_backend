@@ -28,4 +28,10 @@ public interface BusCrewDao extends JpaRepository<BusCrew, Integer> {
 
     @Query("SELECT b FROM BusCrew b INNER JOIN TripCrew tc ON tc.busCrew.busCrewId = b.busCrewId WHERE tc.schedule.scheduleId = :scheduleId AND b.busCrewType.busCrewTypeId = 2")
     BusCrew findConductorByScheduleId(int scheduleId);
+
+    @Query("SELECT b FROM BusCrew b WHERE b.busOwner.busOwnerId = :busOwnerId AND b.busCrewType.busCrewTypeId = 1 AND b.status = 'present'")
+    List<BusCrew> getDriverListByBusOwnerId(int busOwnerId);
+
+    @Query("SELECT b FROM BusCrew b WHERE b.busOwner.busOwnerId = :busOwnerId AND b.busCrewType.busCrewTypeId = 2 AND b.status = 'present'")
+    List<BusCrew> getConductorListByBusOwnerId(int busOwnerId);
 }

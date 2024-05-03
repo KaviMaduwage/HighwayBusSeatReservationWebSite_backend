@@ -8,4 +8,6 @@ public interface BusOwnerService {
     void saveBusOwner(BusOwner busOwner);
 
     List<BusOwner> findBusOwnerByUserId(int busOwnerUserId);
+
+    List<BusOwner> findActiveBusOwnerList();
 }

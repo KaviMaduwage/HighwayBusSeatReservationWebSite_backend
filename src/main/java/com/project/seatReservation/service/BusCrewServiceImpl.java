@@ -76,4 +76,14 @@ public class BusCrewServiceImpl implements BusCrewService{
     public BusCrew findConductorByScheduleId(int scheduleId) {
         return busCrewDao.findConductorByScheduleId(scheduleId);
     }
+
+    @Override
+    public List<BusCrew> getDriverListByBusOwnerId(int busOwnerId) {
+        return busCrewDao.getDriverListByBusOwnerId(busOwnerId);
+    }
+
+    @Override
+    public List<BusCrew> getConductorListByBusOwnerId(int busOwnerId) {
+        return busCrewDao.getConductorListByBusOwnerId(busOwnerId);
+    }
 }

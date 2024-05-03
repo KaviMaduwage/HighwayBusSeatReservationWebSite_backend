@@ -27,4 +27,8 @@ public interface BusCrewService {
     BusCrew findDriverByScheduleId(int scheduleId);
 
     BusCrew findConductorByScheduleId(int scheduleId);
+
+    List<BusCrew> getDriverListByBusOwnerId(int busOwnerId);
+
+    List<BusCrew> getConductorListByBusOwnerId(int busOwnerId);
 }

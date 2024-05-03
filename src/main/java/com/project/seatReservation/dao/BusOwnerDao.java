@@ -9,4 +9,7 @@ import java.util.List;
 public interface BusOwnerDao extends JpaRepository<BusOwner, Integer> {
     @Query("SELECT b FROM BusOwner b WHERE b.user.userId = :busOwnerUserId")
     List<BusOwner> findBusOwnerByUserId(int busOwnerUserId);
+
+    @Query("SELECT b FROM BusOwner b WHERE b.user.isActive = true")
+    List<BusOwner> findActiveBusOwnerList();
 }
