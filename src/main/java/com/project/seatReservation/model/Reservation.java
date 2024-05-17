@@ -18,9 +18,21 @@ public class Reservation {
     private Passenger passenger;
 
     private boolean isCancelled;
-    private Date reserveDate;
     private String boardingPoint;
     private String droppingPoint;
+    @ManyToOne
+    @JoinColumn(name = "paymentId")
+    private Payment payment;
+
+    private boolean isPaymentCompleted;
+
+    public boolean isPaymentCompleted() {
+        return isPaymentCompleted;
+    }
+
+    public void setPaymentCompleted(boolean paymentCompleted) {
+        isPaymentCompleted = paymentCompleted;
+    }
 
     public int getReservationId() {
         return reservationId;
@@ -54,14 +66,6 @@ public class Reservation {
         isCancelled = cancelled;
     }
 
-    public Date getReserveDate() {
-        return reserveDate;
-    }
-
-    public void setReserveDate(Date reserveDate) {
-        this.reserveDate = reserveDate;
-    }
-
     public String getBoardingPoint() {
         return boardingPoint;
     }
@@ -76,5 +80,15 @@ public class Reservation {
 
     public void setDroppingPoint(String droppingPoint) {
         this.droppingPoint = droppingPoint;
+    }
+
+
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 }

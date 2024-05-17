@@ -7,6 +7,7 @@ import com.project.seatReservation.model.Seat;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -59,5 +60,11 @@ public class BusServiceImpl implements BusService{
     @Override
     public List<Bus> loadAllBusDetailsInTravelService(int busOwnerId) {
         return busDao.loadAllBusDetailsInTravelService(busOwnerId);
+    }
+
+    @Override
+    public List<Seat> getSeatsBySeatNoStr(String[] seatNos) {
+        List<String> seatNosList = Arrays.asList(seatNos);
+        return seatDao.getSeatsBySeatNoStr(seatNosList);
     }
 }

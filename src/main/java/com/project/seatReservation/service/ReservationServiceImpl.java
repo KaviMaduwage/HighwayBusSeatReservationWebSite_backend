@@ -1,19 +1,14 @@
 package com.project.seatReservation.service;
 
-import com.project.seatReservation.dao.BlockedSeatDao;
-import com.project.seatReservation.dao.CartAddedBlockedSeatDao;
-import com.project.seatReservation.dao.CartDao;
-import com.project.seatReservation.dao.ReservationDao;
-import com.project.seatReservation.model.BlockedSeat;
-import com.project.seatReservation.model.Cart;
-import com.project.seatReservation.model.CartAddedBlockedSeat;
-import com.project.seatReservation.model.Reservation;
+import com.project.seatReservation.dao.*;
+import com.project.seatReservation.model.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,13 +18,15 @@ public class ReservationServiceImpl implements ReservationService{
     BlockedSeatDao blockedSeatDao;
     CartDao cartDao;
     CartAddedBlockedSeatDao cartAddedBlockedSeatDao;
+    SeatReservationDao seatReservationDao;
 
     public ReservationServiceImpl(ReservationDao reservationDao, BlockedSeatDao blockedSeatDao, CartDao cartDao,
-                                  CartAddedBlockedSeatDao cartAddedBlockedSeatDao) {
+                                  CartAddedBlockedSeatDao cartAddedBlockedSeatDao,SeatReservationDao seatReservationDao) {
         this.reservationDao = reservationDao;
         this.blockedSeatDao = blockedSeatDao;
         this.cartDao = cartDao;
         this.cartAddedBlockedSeatDao = cartAddedBlockedSeatDao;
+        this.seatReservationDao = seatReservationDao;
     }
 
     @Override
@@ -130,5 +127,76 @@ public class ReservationServiceImpl implements ReservationService{
     @Override
     public List<Cart> findCartByScheduleIdAndUserId(int scheduleId, int userId) {
         return cartDao.findCartByScheduleIdAndUserId(scheduleId,userId);
+    }
+
+    @Override
+    public List<Reservation> saveReservations(List<Reservation> newReservations) {
+        return reservationDao.saveAll(newReservations);
+    }
+
+    @Override
+    public Reservation saveReservation(Reservation reservation) {
+        return reservationDao.save(reservation);
+    }
+
+    @Override
+    public void saveSeatReservations(List<SeatReservation> seatReservationList) {
+        seatReservationDao.saveAll(seatReservationList);
+    }
+
+    @Override
+    public List<Reservation> findReservationsByRevIdList(List<Integer> reservationIdList) {
+        return reservationDao.findReservationsByRevIdList(reservationIdList);
+    }
+
+    @Override
+    @Transactional
+    public void updateReservations(List<Reservation> toBeUpdateReservations) {
+        reservationDao.saveAll(toBeUpdateReservations);
+    }
+
+    @Override
+    public List<SeatReservation> findReservedSeatsByRevId(int reservationId) {
+        return seatReservationDao.findReservedSeatsByRevId(reservationId);
+    }
+
+    @Override
+    @Transactional
+    public void updateSeatReservations(List<SeatReservation> toBeUpdateSeatReservations) {
+        seatReservationDao.saveAll(toBeUpdateSeatReservations);
+    }
+
+    @Override
+    public List<BlockedSeat> findBlockedSeatsByUserId(int userId) {
+        return blockedSeatDao.findBlockedSeatsByUserId(userId);
+    }
+
+    @Override
+    public List<CartAddedBlockedSeat> findCartAddedBlockedSeatByCartIdList(List<Integer> cartIdList) {
+        return cartAddedBlockedSeatDao.findCartAddedBlockedSeatsByCartIds(cartIdList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCartDataByUserId(int userId) {
+        List<Cart> cartList = cartDao.findCartDetailsByUserId(userId);
+        List<BlockedSeat> blockedSeatList = blockedSeatDao.findBlockedSeatsByUserId(userId);
+        List<Integer> cartIdList = new ArrayList<>();
+
+        for(Cart c : cartList){
+            cartIdList.add(c.getCartId());
+        }
+
+        List<CartAddedBlockedSeat> cartAddedBlockedSeatList = cartAddedBlockedSeatDao.findCartAddedBlockedSeatsByCartIds(cartIdList);
+
+        cartAddedBlockedSeatDao.deleteAll(cartAddedBlockedSeatList);
+        cartDao.deleteAll(cartList);
+        blockedSeatDao.deleteAll(blockedSeatList);
+
+    }
+
+    @Override
+    public List<SeatReservation> findReservedSeatsByScheduleId(int scheduleId) {
+        return seatReservationDao.findReservedSeatsByScheduleId(scheduleId);
     }
 }

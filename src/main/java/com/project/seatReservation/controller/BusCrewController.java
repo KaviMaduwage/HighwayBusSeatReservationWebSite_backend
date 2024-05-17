@@ -1,14 +1,24 @@
 package com.project.seatReservation.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.*;
 import com.project.seatReservation.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,8 +49,13 @@ public class BusCrewController {
         return ResponseEntity.ok().body(busCrewTypes.toArray());
     }
     @RequestMapping(value = "/saveBusCrew", method = RequestMethod.POST)
-    public ResponseEntity<String> saveBusCrew(@RequestBody BusCrew busCrew, HttpServletRequest request, HttpSession session){
+    public ResponseEntity<String> saveBusCrew(@RequestParam("file") MultipartFile profileImage,
+                                              @RequestParam("busCrew") String busCrewJson) throws JsonProcessingException,IOException {
         String message = "";
+
+        // Convert JSON string to busCrew object
+        ObjectMapper objectMapper = new ObjectMapper();
+        BusCrew busCrew = objectMapper.readValue(busCrewJson, BusCrew.class);
 
         List<User> emailExists = userService.findUsersByEmail(busCrew.getUser().getEmail());
         if((emailExists == null || emailExists.isEmpty()) && busCrew.getBusCrewId() == 0){
@@ -77,6 +92,27 @@ public class BusCrewController {
             }
             busCrew.setUser(savedUser);
             BusCrew savedBusCrew = busCrewService.saveBusCrew(busCrew);
+
+//            if(profileImage != null && !profileImage.isEmpty()){
+//                String fileName = StringUtils.cleanPath(profileImage.getOriginalFilename());
+//                String uploadDir = "src/main/resources/images/"+busOwnerList.get(0).getTravelServiceName()+"/busCrew";
+//                Path uploadpath = Paths.get(uploadDir);
+//
+//                try{
+//                    if(!Files.exists(uploadpath)){
+//                        Files.createDirectories(uploadpath);
+//                    }
+//                    InputStream inputStream = profileImage.getInputStream();
+//                    Path filePath = uploadpath.resolve(fileName);
+//
+//                    Files.copy(inputStream, filePath,
+//                            StandardCopyOption.REPLACE_EXISTING);
+//
+//                }catch (IOException e){
+//                    throw  new IOException("couldn't save uploaded image :"+ fileName);
+//                }
+//
+//            }
 
 
             if(savedBusCrew != null){

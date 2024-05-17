@@ -26,4 +26,7 @@ public interface BlockedSeatDao extends JpaRepository<BlockedSeat, Integer> {
 
     @Query("SELECT b FROM BlockedSeat b INNER JOIN CartAddedBlockedSeat cb ON cb.blockedSeat.blockedSeatId = b.blockedSeatId WHERE cb.cart.cartId IN ( :idList)")
     List<BlockedSeat> findCartAddedBlockedSeatsByCartIdList(List<Integer> idList);
+
+    @Query("SELECT b FROM BlockedSeat  b WHERE b.user.userId = :userId")
+    List<BlockedSeat> findBlockedSeatsByUserId(int userId);
 }

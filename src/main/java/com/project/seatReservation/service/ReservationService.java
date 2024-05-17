@@ -1,9 +1,6 @@
 package com.project.seatReservation.service;
 
-import com.project.seatReservation.model.BlockedSeat;
-import com.project.seatReservation.model.Cart;
-import com.project.seatReservation.model.CartAddedBlockedSeat;
-import com.project.seatReservation.model.Reservation;
+import com.project.seatReservation.model.*;
 
 import java.util.List;
 
@@ -41,4 +38,26 @@ public interface ReservationService {
     List<Cart> findCartById(int cartId);
 
     List<Cart> findCartByScheduleIdAndUserId(int scheduleId, int userId);
+
+    List<Reservation> saveReservations(List<Reservation> newReservations);
+
+    Reservation saveReservation(Reservation reservation);
+
+    void saveSeatReservations(List<SeatReservation> seatReservationList);
+
+    List<Reservation> findReservationsByRevIdList(List<Integer> reservationIdList);
+
+    void updateReservations(List<Reservation> toBeUpdateReservations);
+
+    List<SeatReservation> findReservedSeatsByRevId(int reservationId);
+
+    void updateSeatReservations(List<SeatReservation> toBeUpdateSeatReservations);
+
+    List<BlockedSeat> findBlockedSeatsByUserId(int userId);
+
+    List<CartAddedBlockedSeat> findCartAddedBlockedSeatByCartIdList(List<Integer> cartIdList);
+
+    void deleteCartDataByUserId(int userId);
+
+    List<SeatReservation> findReservedSeatsByScheduleId(int scheduleId);
 }
