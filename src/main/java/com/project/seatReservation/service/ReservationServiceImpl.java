@@ -199,4 +199,19 @@ public class ReservationServiceImpl implements ReservationService{
     public List<SeatReservation> findReservedSeatsByScheduleId(int scheduleId) {
         return seatReservationDao.findReservedSeatsByScheduleId(scheduleId);
     }
+
+    @Override
+    public List<Reservation> findReservationsByUserId(int userId) {
+        return reservationDao.findReservationsByUserId(userId);
+    }
+
+    @Override
+    public List<SeatReservation> findSuccessReservedSeatsByRevId(int reservationId) {
+        return seatReservationDao.findSuccessReservedSeatsByRevId(reservationId);
+    }
+
+    @Override
+    public Reservation findReservationByRevId(Integer reservationId) {
+        return reservationDao.findReservationByRevId(reservationId);
+    }
 }
