@@ -21,4 +21,6 @@ public interface BusService {
     List<Seat> findSeatStructureByBusId(int busId);
 
     List<Bus> loadAllBusDetailsInTravelService(int busOwnerId);
+
+    List<Seat> getSeatsBySeatNoStr(String[] seatNos);
 }

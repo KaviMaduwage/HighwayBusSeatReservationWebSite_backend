@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+
+    <style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true"/>
+    <style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false"/>
+    <style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false"/>
+
+    <parameter name="generatedDate" class="java.lang.String"/>
+
+
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="120" splitType="Stretch">
+            <frame>
+                <reportElement mode="Opaque" x="104" y="0" width="451" height="68" backcolor="#011F4B" />
+                <staticText>
+                    <reportElement style="Title" x="40" y="4" width="370" height="29" />
+                    <textElement textAlignment="Center">
+                        <font size="22" isBold="false"/>
+                    </textElement>
+                    <text><![CDATA[My Travel .com]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement style="SubTitle" x="40" y="33" width="369" height="25" >
+                        <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    </reportElement>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="14" isBold="false"/>
+                    </textElement>
+                    <text><![CDATA[Ticket]]></text>
+                </staticText>
+            </frame>
+            <frame>
+                <reportElement mode="Opaque" x="104" y="68" width="451" height="32" forecolor="#000000" backcolor="#6497B1" />
+                <textField>
+                    <reportElement x="0" y="0" width="451" height="32" forecolor="#FFFFFF" />
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Generated On " + $P{generatedDate}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <image>
+                <reportElement x="0" y="0" width="99" height="100" />
+                <imageExpression><![CDATA["src/main/resources/images/logo.png"]]></imageExpression>
+            </image>
+        </band>
+    </title>
+
+    <columnHeader>
+
+    </columnHeader>
+
+    <detail>
+
+    </detail>
+
+    <columnFooter>
+        <band height="45" splitType="Stretch"/>
+    </columnFooter>
+    <pageFooter>
+        <band height="25" splitType="Stretch">
+            <frame>
+                <reportElement mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#011f4b" />
+                <textField evaluationTime="Report">
+                    <reportElement style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF" />
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+                </textField>
+                <textField>
+                    <reportElement style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF" />
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+                </textField>
+                <textField pattern="EEEEE dd MMMMM yyyy">
+                    <reportElement style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF" />
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </pageFooter>
+    <summary>
+        <band height="42" splitType="Stretch"/>
+    </summary>
+</jasperReport>
