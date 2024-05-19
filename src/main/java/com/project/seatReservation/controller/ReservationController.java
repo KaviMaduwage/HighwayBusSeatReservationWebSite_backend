@@ -2,6 +2,7 @@ package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.*;
+import com.project.seatReservation.model.report.BusOwnerListReportTemplate;
 import com.project.seatReservation.model.report.TicketTemplate;
 import com.project.seatReservation.response.PaymentResponse;
 import com.project.seatReservation.service.*;
@@ -32,9 +33,12 @@ public class ReservationController {
     PassengerService passengerService;
     BusService busService;
 
+    BusOwnerService busOwnerService;
+    BusCrewService busCrewService;
+
     public ReservationController(UserService userService, ScheduleService scheduleService,
                                  ReservationService reservationService,PaymentService paymentService,
-                                 ReportService reportService,PassengerService passengerService,BusService busService) {
+                                 ReportService reportService,PassengerService passengerService,BusService busService,BusOwnerService busOwnerService,BusCrewService busCrewService) {
         this.userService = userService;
         this.scheduleService = scheduleService;
         this.reservationService = reservationService;
@@ -42,6 +46,8 @@ public class ReservationController {
         this.reportService = reportService;
         this.passengerService = passengerService;
         this.busService = busService;
+        this.busCrewService= busCrewService;
+        this.busOwnerService = busOwnerService;
     }
 
     @RequestMapping(value = "/findBlockedSeatsByScheduleId", method = RequestMethod.POST)
@@ -306,13 +312,21 @@ public class ReservationController {
     }
 
     @RequestMapping(value = "/generateTicket",method = RequestMethod.GET)
-    public ResponseEntity<byte[]> generateTicket() {
+    public ResponseEntity<byte[]> generateTicket(@RequestParam("reservationId") Integer reservationId) {
 
         try {
             String jrxmlTemplateName = "ticket.jrxml";
 
             List<TicketTemplate> ticketTemplateList = new ArrayList<>();
 
+            Reservation reservationList = reservationService.findReservationByRevId(reservationId);
+            List<SeatReservation> seatReservationList = reservationService.findReservedSeatsByRevId(reservationId);
+
+
+            TicketTemplate ticketTemplate = new TicketTemplate();
+            ticketTemplate.setDescription("3434");
+
+            ticketTemplateList.add(ticketTemplate);
 
             JRDataSource dataSource = new JRBeanCollectionDataSource(ticketTemplateList);
             Map<String, Object> parameters = new HashMap<>();
@@ -326,7 +340,7 @@ public class ReservationController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("attachment", "Ticket.pdf");
+            headers.setContentDispositionFormData("attachment", "ticket.pdf");
 
             // Return the PDF file as a byte array
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
@@ -335,6 +349,29 @@ public class ReservationController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @RequestMapping(value = "/findReservationsByUserId",method = RequestMethod.POST)
+    public ResponseEntity<?> findReservationsByUserId(@RequestBody Map<String,Integer> requestBody){
+        List<Reservation> reservationList = new ArrayList<>();
+
+        int userId = requestBody.get("userId");
+
+        reservationList = reservationService.findReservationsByUserId(userId);
+
+        List<Map<String, Object>> responseData = new ArrayList<>();
+
+        for(Reservation reservation : reservationList){
+            Map<String, Object> s = new HashMap<>();
+            s.put("reservation",reservation);
+
+            List<SeatReservation> seatReservationList = reservationService.findSuccessReservedSeatsByRevId(reservation.getReservationId());
+            s.put("noOfSeats",seatReservationList.size());
+
+            responseData.add(s);
+        }
+
+        return ResponseEntity.ok().body(responseData);
     }
 
 }

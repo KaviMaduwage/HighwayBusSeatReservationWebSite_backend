@@ -10,4 +10,7 @@ public interface TripCrewDao extends JpaRepository<TripCrew, Integer> {
 
     @Query("SELECT tc FROM TripCrew tc WHERE tc.schedule.scheduleId = :scheduleId")
     List<TripCrew> getCrewListByScheduleId(int scheduleId);
+
+    @Query("SELECT tc FROM TripCrew tc WHERE tc.busCrew.busCrewId = :busCrewId")
+    List<TripCrew> findTripsByCrewId(int busCrewId);
 }

@@ -60,4 +60,10 @@ public interface ReservationService {
     void deleteCartDataByUserId(int userId);
 
     List<SeatReservation> findReservedSeatsByScheduleId(int scheduleId);
+
+    List<Reservation> findReservationsByUserId(int userId);
+
+    List<SeatReservation> findSuccessReservedSeatsByRevId(int reservationId);
+
+    Reservation findReservationByRevId(Integer reservationId);
 }
