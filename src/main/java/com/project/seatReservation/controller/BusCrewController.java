@@ -49,7 +49,7 @@ public class BusCrewController {
         return ResponseEntity.ok().body(busCrewTypes.toArray());
     }
     @RequestMapping(value = "/saveBusCrew", method = RequestMethod.POST)
-    public ResponseEntity<String> saveBusCrew(@RequestParam("file") MultipartFile profileImage,
+    public ResponseEntity<String> saveBusCrew(
                                               @RequestParam("busCrew") String busCrewJson) throws JsonProcessingException,IOException {
         String message = "";
 
@@ -173,12 +173,19 @@ public class BusCrewController {
         BusCrew busCrew = busCrewService.findBusCrewById(busCrewId);
 
         if(busCrew != null){
-            busCrewService.deleteStaffMember(busCrew);
+            List<TripCrew> tripCrewList = busCrewService.findTripsByCrewId(busCrew.getBusCrewId());
 
-            User user = busCrew.getUser();
-            user.setActive(false);
-            userService.updateUser(user);
-            message = "Successfully deleted";
+            if(!tripCrewList.isEmpty()){
+                message = "Can't delete. Has been assigned to a trip.";
+            }else{
+                busCrewService.deleteStaffMember(busCrew);
+
+                User user = busCrew.getUser();
+                user.setActive(false);
+                userService.updateUser(user);
+                message = "Successfully deleted";
+            }
+
         }else{
             message = "No member exists.";
         }

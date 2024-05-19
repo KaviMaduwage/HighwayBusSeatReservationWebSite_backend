@@ -49,7 +49,7 @@ public class ScheduleController {
         if(driverIdObj instanceof Integer) {
             driverId = (int) driverIdObj;
         }else if(driverIdObj instanceof String){
-            driverId = Integer.parseInt((String) driverIdObj);
+            driverId = Integer.parseInt(((String) driverIdObj == "" ? "0" : (String) driverIdObj));
         }
 
         Object conductorIdObj = requestBody.get("conductorId");
@@ -57,7 +57,7 @@ public class ScheduleController {
         if(conductorIdObj instanceof Integer){
             conductorId = (int) conductorIdObj;
         }else if(conductorIdObj instanceof String){
-            conductorId = Integer.parseInt((String) conductorIdObj);
+            conductorId = Integer.parseInt(((String) conductorIdObj == "" ? "0" : (String) conductorIdObj));
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

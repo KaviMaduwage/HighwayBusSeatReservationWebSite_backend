@@ -2,6 +2,7 @@ package com.project.seatReservation.service;
 
 import com.project.seatReservation.model.BusCrew;
 import com.project.seatReservation.model.BusCrewType;
+import com.project.seatReservation.model.TripCrew;
 
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface BusCrewService {
     List<BusCrew> getDriverListByBusOwnerId(int busOwnerId);
 
     List<BusCrew> getConductorListByBusOwnerId(int busOwnerId);
+
+    List<TripCrew> findTripsByCrewId(int busCrewId);
 }

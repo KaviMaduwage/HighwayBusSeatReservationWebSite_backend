@@ -24,6 +24,6 @@ public interface ScheduleDao extends JpaRepository<Schedule, Integer> {
     @Query("SELECT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.busCrew.busCrewId = :busCrewId AND s.tripDateStr = :today")
     List<Schedule> findBusCrewTodaySchedule(String today, int busCrewId);
 
-    @Query("SELECT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.schedule.bus.busOwner.busOwnerId = :busOwnerId AND s.tripDateStr = :searchDate")
+    @Query("SELECT DISTINCT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.schedule.bus.busOwner.busOwnerId = :busOwnerId AND s.tripDateStr = :searchDate")
     List<Schedule> findScheduleByBusOwnerIdDate(String searchDate, int busOwnerId);
 }

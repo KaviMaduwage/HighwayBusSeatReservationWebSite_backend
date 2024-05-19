@@ -2,8 +2,10 @@ package com.project.seatReservation.service;
 
 import com.project.seatReservation.dao.BusCrewDao;
 import com.project.seatReservation.dao.BusCrewTypeDao;
+import com.project.seatReservation.dao.TripCrewDao;
 import com.project.seatReservation.model.BusCrew;
 import com.project.seatReservation.model.BusCrewType;
+import com.project.seatReservation.model.TripCrew;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -15,9 +17,12 @@ public class BusCrewServiceImpl implements BusCrewService{
     BusCrewTypeDao busCrewTypeDao;
     BusCrewDao busCrewDao;
 
-    public BusCrewServiceImpl(BusCrewTypeDao busCrewTypeDao, BusCrewDao busCrewDao) {
+    TripCrewDao tripCrewDao;
+
+    public BusCrewServiceImpl(BusCrewTypeDao busCrewTypeDao, BusCrewDao busCrewDao,TripCrewDao tripCrewDao) {
         this.busCrewTypeDao = busCrewTypeDao;
         this.busCrewDao = busCrewDao;
+        this.tripCrewDao = tripCrewDao;
     }
 
     @Override
@@ -85,5 +90,10 @@ public class BusCrewServiceImpl implements BusCrewService{
     @Override
     public List<BusCrew> getConductorListByBusOwnerId(int busOwnerId) {
         return busCrewDao.getConductorListByBusOwnerId(busOwnerId);
+    }
+
+    @Override
+    public List<TripCrew> findTripsByCrewId(int busCrewId) {
+        return tripCrewDao.findTripsByCrewId(busCrewId);
     }
 }
