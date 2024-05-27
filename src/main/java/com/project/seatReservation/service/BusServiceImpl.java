@@ -63,8 +63,8 @@ public class BusServiceImpl implements BusService{
     }
 
     @Override
-    public List<Seat> getSeatsBySeatNoStr(String[] seatNos) {
+    public List<Seat> getSeatsBySeatNoStr(String[] seatNos, int busId) {
         List<String> seatNosList = Arrays.asList(seatNos);
-        return seatDao.getSeatsBySeatNoStr(seatNosList);
+        return seatDao.getSeatsBySeatNoStr(seatNosList,busId);
     }
 }

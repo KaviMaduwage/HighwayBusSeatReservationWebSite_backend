@@ -278,7 +278,8 @@ public class ReservationController {
 
             String seatNoStr = c.getSeatNos();
             String[] seatNos = seatNoStr.split(",");
-            List<Seat> seatList = busService.getSeatsBySeatNoStr(seatNos);
+            int busId = c.getSchedule().getBus().getBusId();
+            List<Seat> seatList = busService.getSeatsBySeatNoStr(seatNos,busId);
 
             for(Seat s : seatList){
                 SeatReservation sr = new SeatReservation();
@@ -319,12 +320,28 @@ public class ReservationController {
 
             List<TicketTemplate> ticketTemplateList = new ArrayList<>();
 
-            Reservation reservationList = reservationService.findReservationByRevId(reservationId);
+            Reservation reservation = reservationService.findReservationByRevId(reservationId);
             List<SeatReservation> seatReservationList = reservationService.findReservedSeatsByRevId(reservationId);
 
 
             TicketTemplate ticketTemplate = new TicketTemplate();
-            ticketTemplate.setDescription("3434");
+            ticketTemplate.setBusNo(reservation.getSchedule().getBus().getPlateNo());
+            ticketTemplate.setOrigin(reservation.getSchedule().getOrigin());
+            ticketTemplate.setDestination(reservation.getSchedule().getDestination());
+            ticketTemplate.setTravelDate(reservation.getSchedule().getTripDateStr());
+            ticketTemplate.setTravelTime(reservation.getSchedule().getTripStartTime());
+            ticketTemplate.setNic(reservation.getPassenger().getNic());
+
+            double amount =0.0;
+            String seatStr = "";
+            for(SeatReservation sr: seatReservationList){
+                amount += sr.getReservation().getSchedule().getTicketPrice();
+                seatStr += sr.getSeat().getRowNo()+" - "+ sr.getSeat().getColumnNo()+",";
+            }
+
+            seatStr = seatStr.substring(0,seatStr.length()-1);
+            ticketTemplate.setSeatNos(seatStr);
+            ticketTemplate.setPrice(String.valueOf(amount));
 
             ticketTemplateList.add(ticketTemplate);
 
@@ -334,6 +351,9 @@ public class ReservationController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
             String generatedDate = sdf.format(new Date());
             parameters.put("generatedDate", generatedDate);
+
+            String sinhalaAcknowledgement = "ඔබ මෙය ඉදිරිපත් කර ඔබ බසයට ගොඩ වූ පසු කොන්දොස්තරගෙන් ටිකට් පත ලබා ගත යුතුය.";
+            parameters.put("sinhalaAcknowledgement",sinhalaAcknowledgement);
 
             byte[] pdfBytes = reportService.generatePDF(jrxmlTemplateName, dataSource, parameters);
 

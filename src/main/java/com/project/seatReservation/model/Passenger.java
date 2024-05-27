@@ -20,6 +20,16 @@ public class Passenger {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String nic;
+
+    public String getNic() {
+        return nic;
+    }
+
+    public void setNic(String nic) {
+        this.nic = nic;
+    }
+
     public int getPassengerId() {
         return passengerId;
     }
