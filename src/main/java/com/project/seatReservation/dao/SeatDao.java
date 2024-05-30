@@ -12,4 +12,7 @@ public interface SeatDao extends JpaRepository<Seat,Integer> {
 
     @Query("SELECT s FROM Seat s WHERE CONCAT(s.rowNo,' - ',s.columnNo) IN ( :seatNos) AND s.bus.busId = :busId ")
     List<Seat> getSeatsBySeatNoStr(List<String> seatNos, int busId);
+
+    @Query("SELECT s FROM Seat s INNER JOIN SeatReservation sr ON sr.seat.seatId = s.seatId WHERE sr.reservation.reservationId = :reservationId AND sr.status = 'Success'" )
+    List<Seat> findReservedSeatsByReservationId(int reservationId);
 }

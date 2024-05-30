@@ -20,13 +20,17 @@ public class ReservationServiceImpl implements ReservationService{
     CartAddedBlockedSeatDao cartAddedBlockedSeatDao;
     SeatReservationDao seatReservationDao;
 
+    SeatDao seatDao;
+
     public ReservationServiceImpl(ReservationDao reservationDao, BlockedSeatDao blockedSeatDao, CartDao cartDao,
-                                  CartAddedBlockedSeatDao cartAddedBlockedSeatDao,SeatReservationDao seatReservationDao) {
+                                  CartAddedBlockedSeatDao cartAddedBlockedSeatDao,SeatReservationDao seatReservationDao,
+                                  SeatDao seatDao) {
         this.reservationDao = reservationDao;
         this.blockedSeatDao = blockedSeatDao;
         this.cartDao = cartDao;
         this.cartAddedBlockedSeatDao = cartAddedBlockedSeatDao;
         this.seatReservationDao = seatReservationDao;
+        this.seatDao = seatDao;
     }
 
     @Override
@@ -213,5 +217,21 @@ public class ReservationServiceImpl implements ReservationService{
     @Override
     public Reservation findReservationByRevId(Integer reservationId) {
         return reservationDao.findReservationByRevId(reservationId);
+    }
+
+    @Override
+    public List<Seat> findReservedSeatsByReservationId(int reservationId) {
+        return seatDao.findReservedSeatsByReservationId(reservationId);
+    }
+
+    @Override
+    public List<SeatReservation> findSeatReservationsBYId(List<Integer> cancelSeatList) {
+        return seatReservationDao.findSeatReservationsBYId(cancelSeatList);
+    }
+
+    @Override
+    @Transactional
+    public void updateReservation(Reservation reservation) {
+        reservationDao.save(reservation);
     }
 }

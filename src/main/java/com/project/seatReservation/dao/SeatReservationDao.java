@@ -16,4 +16,7 @@ public interface SeatReservationDao extends JpaRepository<SeatReservation,Intege
 
     @Query("SELECT sr FROM SeatReservation sr WHERE sr.reservation.reservationId = :reservationId AND sr.status = 'Success'")
     List<SeatReservation> findSuccessReservedSeatsByRevId(int reservationId);
+
+    @Query("SELECT sr FROM SeatReservation sr WHERE sr.seatReservationId IN ( :cancelSeatList)")
+    List<SeatReservation> findSeatReservationsBYId(List<Integer> cancelSeatList);
 }
