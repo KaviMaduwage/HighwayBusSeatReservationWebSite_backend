@@ -3,10 +3,8 @@ package com.project.seatReservation.controller;
 import com.project.seatReservation.model.BusCrew;
 import com.project.seatReservation.model.BusOwner;
 import com.project.seatReservation.model.Passenger;
-import com.project.seatReservation.service.BusCrewService;
-import com.project.seatReservation.service.BusOwnerService;
-import com.project.seatReservation.service.PassengerService;
-import com.project.seatReservation.service.UserService;
+import com.project.seatReservation.model.Wallet;
+import com.project.seatReservation.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,11 +23,14 @@ public class UserController {
     PassengerService passengerService;
     BusOwnerService busOwnerService;
 
-    public UserController(UserService userService, BusCrewService busCrewService, PassengerService passengerService, BusOwnerService busOwnerService) {
+    PaymentService paymentService;
+
+    public UserController(UserService userService, BusCrewService busCrewService, PassengerService passengerService, BusOwnerService busOwnerService,PaymentService paymentService) {
         this.userService = userService;
         this.busCrewService = busCrewService;
         this.passengerService = passengerService;
         this.busOwnerService = busOwnerService;
+        this.paymentService = paymentService;
     }
 
     @RequestMapping(value = "/findBusOwnerByUserId", method = RequestMethod.POST)
@@ -54,5 +55,20 @@ public class UserController {
         List<BusCrew> busCrewList = busCrewService.findBusCrewByUserId(userId);
 
         return ResponseEntity.ok().body(busCrewList.get(0));
+    }
+    @RequestMapping(value = "/getWalletAmountByUSerId", method = RequestMethod.POST)
+    public ResponseEntity<?> getWalletAmountByUSerId(@RequestBody Map<String,Integer> requestBody){
+        double walletAmount = 0.0;
+        int userId = requestBody.get("userId");
+
+        Passenger passenger = passengerService.findPassengerByUserId(userId).get(0);
+        Wallet wallet = paymentService.findWalletByPassengerId(passenger.getPassengerId());
+
+        if(wallet != null){
+            walletAmount = wallet.getAmount();
+        }
+
+        return ResponseEntity.ok().body(walletAmount);
+
     }
 }

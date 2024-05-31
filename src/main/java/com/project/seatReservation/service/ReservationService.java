@@ -72,4 +72,8 @@ public interface ReservationService {
     List<SeatReservation> findSeatReservationsBYId(List<Integer> cancelSeatList);
 
     void updateReservation(Reservation reservation);
+
+    List<SeatReservation> getUpcomingReservationsByUserId(int userId);
+
+    List<SeatReservation> getCancelledReservations(int userId);
 }

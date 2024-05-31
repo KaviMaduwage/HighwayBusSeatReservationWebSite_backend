@@ -488,4 +488,30 @@ public class ReservationController {
         return message;
     }
 
+    @RequestMapping(value = "/getUpcomingReservationsByUserId", method = RequestMethod.POST)
+    public ResponseEntity<?> getUpcomingReservationsByUserId(@RequestBody Map<String,Integer> requestBody){
+
+
+        int noOfReservations = 0;
+        int totalCancellations = 0;
+        int userId = requestBody.get("userId");
+        Map<String,Integer> resultMap = new HashMap<>();
+        List<SeatReservation> seatReservationList = reservationService.getUpcomingReservationsByUserId(userId);
+        List<SeatReservation> cancelledSeatReservationList = reservationService.getCancelledReservations(userId);
+
+        if(seatReservationList != null && seatReservationList.size() > 0){
+            noOfReservations = seatReservationList.size();
+        }
+
+        if(cancelledSeatReservationList != null && cancelledSeatReservationList.size() > 0){
+            totalCancellations = cancelledSeatReservationList.size();
+        }
+
+        resultMap.put("noOfReservations",noOfReservations);
+        resultMap.put("totalCancellations",totalCancellations);
+
+        return ResponseEntity.ok().body(resultMap);
+
+    }
+
 }

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -233,5 +234,15 @@ public class ReservationServiceImpl implements ReservationService{
     @Transactional
     public void updateReservation(Reservation reservation) {
         reservationDao.save(reservation);
+    }
+
+    @Override
+    public List<SeatReservation> getUpcomingReservationsByUserId(int userId) {
+        return seatReservationDao.getUpcomingReservationsByUserId(userId, new Date());
+    }
+
+    @Override
+    public List<SeatReservation> getCancelledReservations(int userId) {
+        return seatReservationDao.getCancelledReservations(userId);
     }
 }
