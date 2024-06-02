@@ -10,4 +10,6 @@ public interface BusOwnerService {
     List<BusOwner> findBusOwnerByUserId(int busOwnerUserId);
 
     List<BusOwner> findActiveBusOwnerList();
+
+    List<BusOwner> getAllBusOwners();
 }

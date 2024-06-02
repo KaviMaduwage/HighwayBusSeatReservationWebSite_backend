@@ -130,5 +130,12 @@ public class BusController {
         return ResponseEntity.ok().body(busList.toArray());
     }
 
+    @RequestMapping(value = "/getAllTravelServiceList", method = RequestMethod.POST)
+    public ResponseEntity<?> getAllTravelServiceList(){
+        List<BusOwner> busOwnerList = busOwnerService.getAllBusOwners();
+
+        return ResponseEntity.ok().body(busOwnerList.toArray());
+    }
+
 
 }

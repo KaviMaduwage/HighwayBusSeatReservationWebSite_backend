@@ -2,7 +2,6 @@ package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.*;
-import com.project.seatReservation.model.report.BusOwnerListReportTemplate;
 import com.project.seatReservation.model.report.TicketTemplate;
 import com.project.seatReservation.response.PaymentResponse;
 import com.project.seatReservation.service.*;
@@ -392,6 +391,127 @@ public class ReservationController {
         }
 
         return ResponseEntity.ok().body(responseData);
+    }
+
+    @RequestMapping(value = "/findReservedSeatsByReservationId", method = RequestMethod.POST)
+    public ResponseEntity<?> findReservedSeatsByReservationId(@RequestBody Map<String,Integer> requestBody){
+        List<SeatReservation> seatList = new ArrayList<>();
+
+        int reservationId = requestBody.get("reservationId");
+        seatList = reservationService.findSuccessReservedSeatsByRevId(reservationId);
+
+        return ResponseEntity.ok().body(seatList.toArray());
+    }
+
+    @RequestMapping(value = "/cancelReservations", method = RequestMethod.POST)
+    public ResponseEntity<?> cancelReservations(@RequestBody Map<String,Object> requestBody){
+        String message = "";
+        String type = (String) requestBody.get("type");
+        List<String> cancelSeatListStr = (List<String>) requestBody.get("cancelSeatList");
+        List<Integer> cancelSeatList = new ArrayList<>();
+        for(String s : cancelSeatListStr){
+            cancelSeatList.add(Integer.valueOf(s));
+        }
+        int userId = (Integer) requestBody.get("userId");
+
+        if(type.equals("wallet")){
+            message = manageWallet(cancelSeatList,userId);
+
+        }else if(type.equals("refund")){
+
+        }
+
+
+        return ResponseEntity.ok().body(message);
+    }
+
+    private String manageWallet(List<Integer> cancelSeatList, int userId) {
+        String message = "";
+
+        List<SeatReservation> seatReservationList = reservationService.findSeatReservationsBYId(cancelSeatList);
+        Passenger passenger = passengerService.findPassengerByUserId(userId).get(0);
+
+        if(seatReservationList.size() > 0){
+            int reservationId = seatReservationList.get(0).getReservation().getReservationId();
+            int maxSeatReservations = (reservationService.findReservedSeatsByReservationId(reservationId)).size();
+
+            double ticketPricePerPerson = seatReservationList.get(0).getReservation().getSchedule().getTicketPrice();
+            double totalRefund = ticketPricePerPerson * seatReservationList.size();
+
+            Reservation reservation = reservationService.findReservationByRevId(reservationId);
+
+            if(seatReservationList.size() == maxSeatReservations){
+
+                reservation.setCancelled(true);
+                reservationService.updateReservation(reservation);
+
+                Payment toBeUpdatePayment = reservation.getPayment();
+                toBeUpdatePayment.setActive(false);
+                paymentService.updatePayment(toBeUpdatePayment);
+
+            }else{
+                Payment toBeUpdatePayment = reservation.getPayment();
+                double validAmount = toBeUpdatePayment.getAmount() - totalRefund;
+                toBeUpdatePayment.setAmount(validAmount);
+                paymentService.updatePayment(toBeUpdatePayment);
+            }
+
+            List<SeatReservation> toBeUpdateSeatReservations = new ArrayList<>();
+            for(SeatReservation sr : seatReservationList){
+                sr.setStatus("Cancelled");
+                toBeUpdateSeatReservations.add(sr);
+            }
+
+            reservationService.updateSeatReservations(toBeUpdateSeatReservations);
+
+            // create wallet
+            Wallet wallet = paymentService.findWalletByPassengerId(passenger.getPassengerId());
+            double currentAmount = 0;
+            if(wallet != null){
+                //update existing wallet
+                currentAmount += wallet.getAmount() + totalRefund;
+                wallet.setAmount(currentAmount);
+                paymentService.updateWallet(wallet);
+            }else{
+                //create new wallet
+                Wallet newWallet = new Wallet();
+                newWallet.setAmount(totalRefund);
+                newWallet.setPassenger(passenger);
+                paymentService.saveWallet(newWallet);
+            }
+
+            message = "Successfully cancel the ticket/s and added money to the wallet.";
+
+        }else{
+            message = "Error in reservation cancellation process.";
+        }
+        return message;
+    }
+
+    @RequestMapping(value = "/getUpcomingReservationsByUserId", method = RequestMethod.POST)
+    public ResponseEntity<?> getUpcomingReservationsByUserId(@RequestBody Map<String,Integer> requestBody){
+
+
+        int noOfReservations = 0;
+        int totalCancellations = 0;
+        int userId = requestBody.get("userId");
+        Map<String,Integer> resultMap = new HashMap<>();
+        List<SeatReservation> seatReservationList = reservationService.getUpcomingReservationsByUserId(userId);
+        List<SeatReservation> cancelledSeatReservationList = reservationService.getCancelledReservations(userId);
+
+        if(seatReservationList != null && seatReservationList.size() > 0){
+            noOfReservations = seatReservationList.size();
+        }
+
+        if(cancelledSeatReservationList != null && cancelledSeatReservationList.size() > 0){
+            totalCancellations = cancelledSeatReservationList.size();
+        }
+
+        resultMap.put("noOfReservations",noOfReservations);
+        resultMap.put("totalCancellations",totalCancellations);
+
+        return ResponseEntity.ok().body(resultMap);
+
     }
 
 }

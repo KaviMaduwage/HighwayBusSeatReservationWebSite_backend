@@ -12,4 +12,7 @@ public interface BusOwnerDao extends JpaRepository<BusOwner, Integer> {
 
     @Query("SELECT b FROM BusOwner b WHERE b.user.isActive = true")
     List<BusOwner> findActiveBusOwnerList();
+
+    @Query("SELECT b FROM BusOwner b")
+    List<BusOwner> getAllBusOwners();
 }

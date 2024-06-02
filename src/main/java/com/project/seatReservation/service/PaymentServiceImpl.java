@@ -1,8 +1,10 @@
 package com.project.seatReservation.service;
 
 import com.project.seatReservation.dao.PaymentDao;
+import com.project.seatReservation.dao.WalletDao;
 import com.project.seatReservation.model.Payment;
 import com.project.seatReservation.model.Reservation;
+import com.project.seatReservation.model.Wallet;
 import com.project.seatReservation.response.PaymentResponse;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +23,11 @@ import java.util.Map;
 @Service
 public class PaymentServiceImpl implements PaymentService{
     PaymentDao paymentDao;
+    WalletDao walletDao;
 
-    public PaymentServiceImpl(PaymentDao paymentDao) {
+    public PaymentServiceImpl(PaymentDao paymentDao,WalletDao walletDao) {
         this.paymentDao = paymentDao;
+        this.walletDao = walletDao;
     }
 
     @Value("${stripe.api.key}")
@@ -84,4 +89,25 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentDao.save(payment);
     }
 
+    @Transactional
+    @Override
+    public void updatePayment(Payment toBeUpdatePayment) {
+        paymentDao.save(toBeUpdatePayment);
+    }
+
+    @Override
+    public Wallet findWalletByPassengerId(int passengerId) {
+        return walletDao.findWalletByPassengerId(passengerId);
+    }
+
+    @Transactional
+    @Override
+    public void updateWallet(Wallet wallet) {
+        walletDao.save(wallet);
+    }
+
+    @Override
+    public void saveWallet(Wallet newWallet) {
+        walletDao.save(newWallet);
+    }
 }
