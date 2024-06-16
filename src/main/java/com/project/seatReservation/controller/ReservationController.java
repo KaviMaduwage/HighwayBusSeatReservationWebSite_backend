@@ -227,6 +227,19 @@ public class ReservationController {
         List<Cart> cartList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
+        List<Passenger> passengerList = passengerService.findPassengerByUserId(userId);
+        Wallet wallet = paymentService.findWalletByPassengerId(passengerList.get(0).getPassengerId());
+        if(wallet != null){
+            double walletAmount = wallet.getAmount();
+            if(walletAmount < price){
+                price = price - walletAmount;
+                wallet.setAmount(0);
+                paymentService.updateWallet(wallet);
+            }
+        }
+
+
+
         for (Map<String, Object> cartMap : cartMapList) {
             //Cart cart = new Cart();
             Cart cart = objectMapper.convertValue(cartMap, Cart.class);
@@ -249,6 +262,81 @@ public class ReservationController {
 
         return new ResponseEntity<>(paymentResponse, HttpStatus.OK);
 
+    }
+    @RequestMapping(value = "/makeReservationFromWalletSavings", method = RequestMethod.POST)
+    public ResponseEntity<?> makeReservationFromWalletSavings(@RequestBody Map<String,Object> requestBody){
+        String message = "";
+        double price = ((Number) requestBody.get("totalPrice")).doubleValue();
+        int userId = (int) requestBody.get("userId");
+        List<Passenger> passengerList = passengerService.findPassengerByUserId(userId);
+
+        List<Map<String, Object>> cartMapList = (List<Map<String, Object>>) requestBody.get("cartList");
+        List<Cart> cartList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+
+        Wallet wallet = paymentService.findWalletByPassengerId(passengerList.get(0).getPassengerId());
+        wallet.setAmount(wallet.getAmount() - price);
+        paymentService.updateWallet(wallet);
+
+
+        for (Map<String, Object> cartMap : cartMapList) {
+            Cart cart = objectMapper.convertValue(cartMap, Cart.class);
+            cartList.add(cart);
+        }
+
+        List<Reservation> newReservations = new ArrayList<>();
+        List<SeatReservation> seatReservationList = new ArrayList<>();
+        List<Passenger> passengers = passengerService.findPassengerByUserId(userId);
+
+        for(Cart c : cartList){
+
+            Reservation reservation = new Reservation();
+            reservation.setPaymentCompleted(true);
+            reservation.setCancelled(false);
+            reservation.setBoardingPoint(c.getPickUpPoint());
+            reservation.setDroppingPoint(c.getDropPoint());
+            reservation.setPassenger(passengers.get(0));
+            reservation.setSchedule(c.getSchedule());
+
+            Reservation savedReservation = reservationService.saveReservation(reservation);
+
+            newReservations.add(savedReservation);
+
+            String blockedSeatIdsStr = c.getBlockedSeatIds();
+            String[] blockedSeatIds = blockedSeatIdsStr.split(",");
+
+            String seatNoStr = c.getSeatNos();
+            String[] seatNos = seatNoStr.split(",");
+            int busId = c.getSchedule().getBus().getBusId();
+            List<Seat> seatList = busService.getSeatsBySeatNoStr(seatNos,busId);
+
+            for(Seat s : seatList){
+                SeatReservation sr = new SeatReservation();
+                sr.setReservation(savedReservation);
+                sr.setSeat(s);
+                sr.setStatus("Success");
+
+                seatReservationList.add(sr);
+            }
+
+        }
+
+        if(!seatReservationList.isEmpty()){
+            reservationService.saveSeatReservations(seatReservationList);
+        }
+
+        //delete cart data by user id
+        deleteCartData(userId);
+
+        message = "Seats are successfully reserved. Go to Profile->My Reservations to download the ticket.";
+
+        return ResponseEntity.ok().body(message);
+    }
+
+
+    private void deleteCartData(int userId) {
+        reservationService.deleteCartDataByUserId(userId);
     }
 
     private List<Integer> createReservationTableRecords(List<Cart> cartList,int userId) {
