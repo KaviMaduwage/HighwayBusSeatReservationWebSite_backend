@@ -32,12 +32,15 @@ public class ReservationController {
     PassengerService passengerService;
     BusService busService;
 
+    DiscountService discountService;
+
     BusOwnerService busOwnerService;
     BusCrewService busCrewService;
 
     public ReservationController(UserService userService, ScheduleService scheduleService,
                                  ReservationService reservationService,PaymentService paymentService,
-                                 ReportService reportService,PassengerService passengerService,BusService busService,BusOwnerService busOwnerService,BusCrewService busCrewService) {
+                                 ReportService reportService,PassengerService passengerService,BusService busService,
+                                 BusOwnerService busOwnerService,BusCrewService busCrewService,DiscountService discountService) {
         this.userService = userService;
         this.scheduleService = scheduleService;
         this.reservationService = reservationService;
@@ -47,6 +50,7 @@ public class ReservationController {
         this.busService = busService;
         this.busCrewService= busCrewService;
         this.busOwnerService = busOwnerService;
+        this.discountService = discountService;
     }
 
     @RequestMapping(value = "/findBlockedSeatsByScheduleId", method = RequestMethod.POST)
@@ -194,7 +198,23 @@ public class ReservationController {
 
         cartList = reservationService.findCartDetailsByUserId(userId);
 
-        return ResponseEntity.ok().body(cartList.toArray());
+        List<Map<String, Object>> responseData = new ArrayList<>();
+
+        for(Cart c : cartList){
+            Map<String, Object> rowData = new HashMap<>();
+            rowData.put("cart",c);
+
+            int routeId = c.getSchedule().getBus().getRoute().getRouteId();
+            String tripDateStr = c.getSchedule().getTripDateStr();
+            int busOwnerId = c.getSchedule().getBus().getBusOwner().getBusOwnerId();
+
+            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,routeId,busOwnerId);
+            rowData.put("discounts",discounts);
+
+            responseData.add(rowData);
+        }
+
+        return ResponseEntity.ok().body(responseData);
     }
 
     @RequestMapping(value = "/deleteCartByCartId", method = RequestMethod.POST)
@@ -242,7 +262,7 @@ public class ReservationController {
 
         for (Map<String, Object> cartMap : cartMapList) {
             //Cart cart = new Cart();
-            Cart cart = objectMapper.convertValue(cartMap, Cart.class);
+            Cart cart = objectMapper.convertValue(cartMap.get("cart"), Cart.class);
 
 //            cart.setCartId((Integer) cartMap.get("cartId"));
 //            cart.setPickUpPoint((String) cartMap.get("pickUpPoint"));
@@ -281,7 +301,7 @@ public class ReservationController {
 
 
         for (Map<String, Object> cartMap : cartMapList) {
-            Cart cart = objectMapper.convertValue(cartMap, Cart.class);
+            Cart cart = objectMapper.convertValue(cartMap.get("cart"), Cart.class);
             cartList.add(cart);
         }
 
@@ -410,6 +430,11 @@ public class ReservationController {
             Reservation reservation = reservationService.findReservationByRevId(reservationId);
             List<SeatReservation> seatReservationList = reservationService.findReservedSeatsByRevId(reservationId);
 
+            int busOwnerId = reservation.getSchedule().getBus().getBusOwner().getBusOwnerId();
+            String tripDateStr = reservation.getSchedule().getTripDateStr();
+            int routeId = reservation.getSchedule().getBus().getRoute().getRouteId();
+
+            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,routeId,busOwnerId);
 
             TicketTemplate ticketTemplate = new TicketTemplate();
             ticketTemplate.setBusNo(reservation.getSchedule().getBus().getPlateNo());
@@ -419,16 +444,34 @@ public class ReservationController {
             ticketTemplate.setTravelTime(reservation.getSchedule().getTripStartTime());
             ticketTemplate.setNic(reservation.getPassenger().getNic());
 
+            double discountAmount = 0;
+            double amountAfterDiscounts = 0.0;
+            String discountDes = "(";
+            double ticketPrice = 0;
             double amount =0.0;
             String seatStr = "";
             for(SeatReservation sr: seatReservationList){
+                ticketPrice = sr.getReservation().getSchedule().getTicketPrice();
                 amount += sr.getReservation().getSchedule().getTicketPrice();
                 seatStr += sr.getSeat().getRowNo()+" - "+ sr.getSeat().getColumnNo()+",";
             }
 
+            for(Discount d:discounts){
+                discountAmount += ticketPrice * d.getPercentage()/100;
+                discountDes += d.getDiscountName()+", ";
+            }
+
+            if(!discountDes.equals("(")){
+                discountDes = discountDes.substring(0,discountDes.length()-2).trim()+")";
+            }
+            amountAfterDiscounts = amount - discountAmount* seatReservationList.size();
+            ticketTemplate.setAmountAfterDiscount(String.valueOf(amountAfterDiscounts));
+
             seatStr = seatStr.substring(0,seatStr.length()-1);
             ticketTemplate.setSeatNos(seatStr);
             ticketTemplate.setPrice(String.valueOf(amount));
+            ticketTemplate.setDiscountDes(discountDes);
+            ticketTemplate.setDiscountAmount(String.valueOf(discountAmount* seatReservationList.size()));
 
             ticketTemplateList.add(ticketTemplate);
 

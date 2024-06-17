@@ -17,6 +17,9 @@
     <field name="travelTime" class="java.lang.String"/>
     <field name="price" class="java.lang.String"/>
     <field name="nic" class="java.lang.String"/>
+    <field name="discountAmount" class="java.lang.String"/>
+    <field name="discountDes" class="java.lang.String"/>
+    <field name="amountAfterDiscount" class="java.lang.String"/>
 
 
     <background>
@@ -65,7 +68,7 @@
     </columnHeader>
 
     <detail>
-        <band height="130" splitType="Stretch">
+        <band height="200" splitType="Stretch">
             <staticText>
                 <reportElement x="0" y="0" width="120" height="25"></reportElement>
                 <textElement textAlignment="Left" verticalAlignment="Middle">
@@ -162,15 +165,68 @@
                 <textFieldExpression><![CDATA[$F{travelTime}]]></textFieldExpression>
             </textField>
 
+            <staticText>
+                <reportElement x="120" y="100" width="120" height="25"></reportElement>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font size="11" isBold="false"/>
+                </textElement>
+                <text><![CDATA[Ticket Price :]]></text>
+            </staticText>
+
             <textField isStretchWithOverflow="true">
-                <reportElement x="0" y="100" width="550" height="25" forecolor="#A30000"/>
+                <reportElement x="280" y="100" width="100" height="25" forecolor="#A30000"/>
 
 
-                <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font size="14"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="11"/>
                 </textElement>
                 <textFieldExpression><![CDATA["Rs." + $F{price}]]></textFieldExpression>
             </textField>
+
+            <textField isStretchWithOverflow="true">
+                <reportElement x="120" y="125" width="120" height="25"/>
+
+
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font size="11"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Discount " + $F{discountDes}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement x="280" y="125" width="100" height="25" />
+
+
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="11"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Rs. (" + $F{discountAmount}+")"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="120" y="160" width="120" height="25"></reportElement>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font size="11" isBold="false"/>
+                </textElement>
+                <text><![CDATA[Total Price :]]></text>
+            </staticText>
+
+            <textField isStretchWithOverflow="true">
+                <reportElement x="280" y="160" width="100" height="25" forecolor="#A30000"/>
+
+
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Rs." + $F{amountAfterDiscount}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="280" y="185" width="100" height="1"></reportElement>
+
+            </line>
+            <line>
+                <reportElement x="280" y="187" width="100" height="1"></reportElement>
+
+            </line>
             <line>
                 <reportElement x="280" y="0" width="1" height="90"></reportElement>
                 <graphicElement>
