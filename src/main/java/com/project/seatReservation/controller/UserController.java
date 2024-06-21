@@ -1,9 +1,6 @@
 package com.project.seatReservation.controller;
 
-import com.project.seatReservation.model.BusCrew;
-import com.project.seatReservation.model.BusOwner;
-import com.project.seatReservation.model.Passenger;
-import com.project.seatReservation.model.Wallet;
+import com.project.seatReservation.model.*;
 import com.project.seatReservation.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -70,5 +67,14 @@ public class UserController {
 
         return ResponseEntity.ok().body(walletAmount);
 
+    }
+    @RequestMapping(value = "/updatePassenger",method = RequestMethod.POST)
+    public ResponseEntity<?> updatePassenger(@RequestBody Passenger passenger){
+        String message = "";
+
+        passengerService.updatePassenger(passenger);
+
+        message = "Successfully updated the passenger details.";
+        return ResponseEntity.ok().body(message);
     }
 }
