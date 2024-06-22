@@ -283,4 +283,35 @@ public class ScheduleController {
 
         return ResponseEntity.ok().body(result);
     }
+    @RequestMapping(value = "/updateTripStart", method = RequestMethod.POST)
+    public ResponseEntity<?> updateTripStart(@RequestBody Map<String,Integer> requestBody){
+        String message = "";
+        int scheduleID = requestBody.get("scheduleId");
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleID);
+
+        Schedule toBeUpdateSchedule = scheduleList.get(0);
+        toBeUpdateSchedule.setStarted(true);
+
+        scheduleService.updateSchedule(toBeUpdateSchedule);
+
+        //send notifications to passengers about trip start
+
+
+
+        return ResponseEntity.ok().body(message);
+    }
+
+    @RequestMapping(value = "/updateTripEnding", method = RequestMethod.POST)
+    public ResponseEntity<?> updateTripEnding(@RequestBody Map<String,Integer> requestBody){
+        String message = "";
+        int scheduleID = requestBody.get("scheduleId");
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleID);
+
+        Schedule toBeUpdateSchedule = scheduleList.get(0);
+        toBeUpdateSchedule.setEnd(true);
+
+        scheduleService.updateSchedule(toBeUpdateSchedule);
+
+        return ResponseEntity.ok().body(message);
+    }
 }

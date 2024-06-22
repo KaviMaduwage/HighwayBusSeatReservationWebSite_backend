@@ -19,8 +19,8 @@ public class Schedule {
     @JoinColumn(name = "bus_id")
     private Bus bus;
 
-    private boolean isStarted;
-    private boolean isEnd;
+    private boolean started;
+    private boolean end;
     private boolean isCancelled;
     private double ticketPrice;
 
@@ -82,19 +82,19 @@ public class Schedule {
 
 
     public boolean isStarted() {
-        return isStarted;
+        return started;
     }
 
     public void setStarted(boolean started) {
-        isStarted = started;
+        this.started = started;
     }
 
     public boolean isEnd() {
-        return isEnd;
+        return end;
     }
 
     public void setEnd(boolean end) {
-        isEnd = end;
+        this.end = end;
     }
 
     public boolean isCancelled() {
