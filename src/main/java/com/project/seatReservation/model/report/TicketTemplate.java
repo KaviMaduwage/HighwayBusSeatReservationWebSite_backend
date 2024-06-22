@@ -1,5 +1,9 @@
 package com.project.seatReservation.model.report;
 
+import com.project.seatReservation.model.Discount;
+
+import java.util.List;
+
 public class TicketTemplate {
     private String description;
     private String busNo;
@@ -10,6 +14,34 @@ public class TicketTemplate {
     private String travelTime;
     private String price;
     private String nic;
+    private String discountAmount;
+    private String discountDes;
+
+    private String amountAfterDiscount;
+
+    public String getAmountAfterDiscount() {
+        return amountAfterDiscount;
+    }
+
+    public void setAmountAfterDiscount(String amountAfterDiscount) {
+        this.amountAfterDiscount = amountAfterDiscount;
+    }
+
+    public String getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(String discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
+    public String getDiscountDes() {
+        return discountDes;
+    }
+
+    public void setDiscountDes(String discountDes) {
+        this.discountDes = discountDes;
+    }
 
     public String getBusNo() {
         return busNo;

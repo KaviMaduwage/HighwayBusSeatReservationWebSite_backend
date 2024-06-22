@@ -16,6 +16,26 @@ public class Passenger {
     private String mobileNo;
     private Date dob;
     private String occupation;
+
+    private boolean emailSubscription;
+    private boolean messageSubscription;
+
+    public boolean isEmailSubscription() {
+        return emailSubscription;
+    }
+
+    public void setEmailSubscription(boolean emailSubscription) {
+        this.emailSubscription = emailSubscription;
+    }
+
+    public boolean isMessageSubscription() {
+        return messageSubscription;
+    }
+
+    public void setMessageSubscription(boolean messageSubscription) {
+        this.messageSubscription = messageSubscription;
+    }
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

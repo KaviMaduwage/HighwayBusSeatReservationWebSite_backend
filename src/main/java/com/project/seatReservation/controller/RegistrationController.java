@@ -1,10 +1,7 @@
 package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.seatReservation.model.BusOwner;
-import com.project.seatReservation.model.Passenger;
-import com.project.seatReservation.model.Request;
-import com.project.seatReservation.model.User;
+import com.project.seatReservation.model.*;
 import com.project.seatReservation.service.*;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
@@ -72,6 +69,11 @@ public class RegistrationController {
 
                 User savedUser = userService.saveUser(user);
 
+                TempPassenger tempPassenger = objectMapper.convertValue(userData.get("tempPassenger"), TempPassenger.class);
+                tempPassenger.setUser(savedUser);
+                passengerService.saveTempPassenger(tempPassenger);
+
+
                 String siteURL = request.getRequestURL().toString();
                 siteURL = siteURL.replace(request.getServletPath(), "");
 
@@ -125,9 +127,13 @@ public class RegistrationController {
 
         if(message.equalsIgnoreCase("Email verified successfully!")){
             User user  = userService.findUserByUserId(userId);
+
+            TempPassenger tempPassenger = passengerService.findTempPassengerByUserId(userId);
             Passenger passenger = new Passenger();
             passenger.setUser(user);
             passenger.setName(user.getUserName());
+            passenger.setNic(tempPassenger.getNic());
+            passenger.setMobileNo(tempPassenger.getMobileNo());
 
             passengerService.savePassenger(passenger);
 
