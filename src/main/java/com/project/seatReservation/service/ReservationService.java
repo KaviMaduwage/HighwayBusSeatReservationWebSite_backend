@@ -76,4 +76,6 @@ public interface ReservationService {
     List<SeatReservation> getUpcomingReservationsByUserId(int userId);
 
     List<SeatReservation> getCancelledReservations(int userId);
+
+    List<Schedule> getTodaysScheduleByUserId(int userId);
 }

@@ -23,15 +23,18 @@ public class ReservationServiceImpl implements ReservationService{
 
     SeatDao seatDao;
 
+    ScheduleDao scheduleDao;
+
     public ReservationServiceImpl(ReservationDao reservationDao, BlockedSeatDao blockedSeatDao, CartDao cartDao,
                                   CartAddedBlockedSeatDao cartAddedBlockedSeatDao,SeatReservationDao seatReservationDao,
-                                  SeatDao seatDao) {
+                                  SeatDao seatDao, ScheduleDao scheduleDao) {
         this.reservationDao = reservationDao;
         this.blockedSeatDao = blockedSeatDao;
         this.cartDao = cartDao;
         this.cartAddedBlockedSeatDao = cartAddedBlockedSeatDao;
         this.seatReservationDao = seatReservationDao;
         this.seatDao = seatDao;
+        this.scheduleDao = scheduleDao;
     }
 
     @Override
@@ -244,5 +247,10 @@ public class ReservationServiceImpl implements ReservationService{
     @Override
     public List<SeatReservation> getCancelledReservations(int userId) {
         return seatReservationDao.getCancelledReservations(userId);
+    }
+
+    @Override
+    public List<Schedule> getTodaysScheduleByUserId(int userId) {
+        return scheduleDao.getTodaysScheduleByUserId(userId,new Date());
     }
 }
