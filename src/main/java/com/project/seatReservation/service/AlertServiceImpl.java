@@ -33,18 +33,34 @@ public class AlertServiceImpl implements AlertService{
     }
 
     @Override
-    public List<Alert> getAllAlertsByUserTypeId(int userTypeId, Date pastDate) {
+    public List<Alert> getAllAlertsByUserTypeId(int userTypeId, int userId, Date pastDate) {
         List<Alert> alerts = new ArrayList<>();
         if(userTypeId == 1){
             //admin
             alerts = alertDao.getAllPrevious10DaysAlerts(pastDate);
         }else if(userTypeId == 2){
             //bus owner
-            alerts = alertDao.getAllAlertsForBusOwnerForPrevious10Days(pastDate);
+
+            alerts = alertDao.getAllAlertsForBusOwnerForPrevious10Days(pastDate,userId);
         }else{
             alerts = alertDao.getAllAlertsForOtherUsersForPrevious10Days(pastDate);
 
         }
         return alerts;
+    }
+
+    @Override
+    public List<Alert> getAlertsByUserId(int userId) {
+        return alertDao.getAlertsByUserId(userId);
+    }
+
+    @Override
+    public Alert findAlertById(int alertId) {
+        return alertDao.findAlertById(alertId);
+    }
+
+    @Override
+    public void deleteAlert(Alert alert) {
+        alertDao.delete(alert);
     }
 }

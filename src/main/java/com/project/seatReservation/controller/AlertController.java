@@ -21,10 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @CrossOrigin
@@ -65,11 +62,12 @@ public class AlertController {
         List<Alert> alerts = new ArrayList<>();
 
         int userTypeId = requestBody.get("userTypeId");
+        int userId = requestBody.get("userId");
 
         LocalDate ld = LocalDate.now();
         LocalDate pastLocalDate = ld.minusDays(10);
         Date pastDate = Date.from(pastLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        alerts = alertService.getAllAlertsByUserTypeId(userTypeId,pastDate);
+        alerts = alertService.getAllAlertsByUserTypeId(userTypeId,userId,pastDate);
 
         return ResponseEntity.ok().body(alerts.toArray());
     }
@@ -112,6 +110,28 @@ public class AlertController {
 
 
         return ResponseEntity.ok().body(currentSchedule);
+
+    }
+    @RequestMapping(value = "/getAlertsByUserId",method = RequestMethod.POST)
+    public ResponseEntity<?> getAlertsByUserId(@RequestBody Map<String,Integer> requestBody){
+        List<Alert> alerts = new ArrayList<>();
+
+        int userId = requestBody.get("userId");
+        alerts = alertService.getAlertsByUserId(userId);
+
+        return ResponseEntity.ok().body(alerts.toArray());
+    }
+
+    @RequestMapping(value = "/deleteAlertByAlertId", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteAlertByAlertId(@RequestBody Map<String,Integer> requestBody){
+        int alertId = requestBody.get("alertId");
+        Alert alert = alertService.findAlertById(alertId);
+
+        alertService.deleteAlert(alert);
+
+        String message = "Successfully delete the alert";
+
+        return ResponseEntity.ok().body(message);
 
     }
 }

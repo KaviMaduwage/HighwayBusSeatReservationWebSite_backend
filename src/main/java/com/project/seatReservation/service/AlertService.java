@@ -11,5 +11,11 @@ public interface AlertService {
 
     void saveAlert(Alert alert);
 
-    List<Alert> getAllAlertsByUserTypeId(int userTypeId, Date pastDate);
+    List<Alert> getAllAlertsByUserTypeId(int userTypeId, int userId, Date pastDate);
+
+    List<Alert> getAlertsByUserId(int userId);
+
+    Alert findAlertById(int alertId);
+
+    void deleteAlert(Alert alert);
 }
