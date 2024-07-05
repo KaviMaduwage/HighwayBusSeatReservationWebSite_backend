@@ -8,7 +8,7 @@ import java.util.Date;
 public class FoundItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int lostItemId;
+    private int foundItemId;
 
     private String reporterName;
     private Date reportedDate;
@@ -36,12 +36,12 @@ public class FoundItem {
         this.busNo = busNo;
     }
 
-    public int getLostItemId() {
-        return lostItemId;
+    public int getFoundItemId() {
+        return foundItemId;
     }
 
-    public void setLostItemId(int lostItemId) {
-        this.lostItemId = lostItemId;
+    public void setFoundItemId(int foundItemId) {
+        this.foundItemId = foundItemId;
     }
 
     public String getReporterName() {
