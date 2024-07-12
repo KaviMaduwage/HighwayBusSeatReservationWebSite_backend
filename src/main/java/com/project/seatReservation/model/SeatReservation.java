@@ -17,6 +17,24 @@ public class SeatReservation {
     @JoinColumn(name = "seat_id")
     private Seat seat;
     private String status;
+    private double ticketPriceAfterDis;
+    private double discountAmount;
+
+    public double getTicketPriceAfterDis() {
+        return ticketPriceAfterDis;
+    }
+
+    public void setTicketPriceAfterDis(double ticketPriceAfterDis) {
+        this.ticketPriceAfterDis = ticketPriceAfterDis;
+    }
+
+    public double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(double discountAmount) {
+        this.discountAmount = discountAmount;
+    }
 
     public String getStatus() {
         return status;
