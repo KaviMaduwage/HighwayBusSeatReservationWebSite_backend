@@ -25,6 +25,15 @@ public class Reservation {
     private Payment payment;
 
     private boolean isPaymentCompleted;
+    private Date reserveDate;
+
+    public Date getReserveDate() {
+        return reserveDate;
+    }
+
+    public void setReserveDate(Date reserveDate) {
+        this.reserveDate = reserveDate;
+    }
 
     public boolean isPaymentCompleted() {
         return isPaymentCompleted;

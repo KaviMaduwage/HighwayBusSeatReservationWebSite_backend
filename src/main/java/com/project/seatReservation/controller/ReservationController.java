@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -208,8 +209,16 @@ public class ReservationController {
             String tripDateStr = c.getSchedule().getTripDateStr();
             int busOwnerId = c.getSchedule().getBus().getBusOwner().getBusOwnerId();
 
-            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,routeId,busOwnerId);
-            rowData.put("discounts",discounts);
+            List<Discount> availableDiscounts = new ArrayList<>();
+            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,0,busOwnerId);
+            for(Discount d : discounts){
+                if(d.getRoute() == null){
+                    availableDiscounts.add(d);
+                }else if(d.getRoute() != null && routeId == d.getRoute().getRouteId()){
+                    availableDiscounts.add(d);
+                }
+            }
+            rowData.put("discounts",availableDiscounts);
 
             responseData.add(rowData);
         }
@@ -311,6 +320,9 @@ public class ReservationController {
 
         for(Cart c : cartList){
 
+            double ticketPriceBeforeDiscount = c.getSchedule().getTicketPrice();
+            double ticketPriceAfterDiscounts = getTicketPrice(c.getSchedule());
+
             Reservation reservation = new Reservation();
             reservation.setPaymentCompleted(true);
             reservation.setCancelled(false);
@@ -318,6 +330,8 @@ public class ReservationController {
             reservation.setDroppingPoint(c.getDropPoint());
             reservation.setPassenger(passengers.get(0));
             reservation.setSchedule(c.getSchedule());
+
+            reservation.setReserveDate(new Date());
 
             Reservation savedReservation = reservationService.saveReservation(reservation);
 
@@ -336,6 +350,8 @@ public class ReservationController {
                 sr.setReservation(savedReservation);
                 sr.setSeat(s);
                 sr.setStatus("Success");
+                sr.setTicketPriceAfterDis(ticketPriceAfterDiscounts);
+                sr.setDiscountAmount(ticketPriceBeforeDiscount - ticketPriceAfterDiscounts);
 
                 seatReservationList.add(sr);
             }
@@ -354,6 +370,24 @@ public class ReservationController {
         return ResponseEntity.ok().body(message);
     }
 
+    private double getTicketPrice(Schedule schedule) {
+
+        double ticketPriceBeforeDis = schedule.getTicketPrice();
+        List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(schedule.getTripDateStr(), 0,schedule.getBus().getBusOwner().getBusOwnerId());
+        double disAmount = 0;
+        for(Discount d : discounts){
+            if(d.getRoute() == null){
+                disAmount += ticketPriceBeforeDis*d.getPercentage()/100;
+            }else if(d.getRoute() != null && d.getRoute().getRouteId() == schedule.getBus().getRoute().getRouteId()){
+                disAmount += ticketPriceBeforeDis*d.getPercentage()/100;
+            }
+        }
+
+        double ticketPriceAfterDis = ticketPriceBeforeDis - disAmount;
+        return  ticketPriceAfterDis;
+
+    }
+
 
     private void deleteCartData(int userId) {
         reservationService.deleteCartDataByUserId(userId);
@@ -368,6 +402,9 @@ public class ReservationController {
 
         for(Cart c : cartList){
 
+            double ticketPriceBeforeDiscount = c.getSchedule().getTicketPrice();
+            double ticketPriceAfterDiscounts = getTicketPrice(c.getSchedule());
+
             Reservation reservation = new Reservation();
             reservation.setPaymentCompleted(false);
             reservation.setCancelled(false);
@@ -375,6 +412,7 @@ public class ReservationController {
             reservation.setDroppingPoint(c.getDropPoint());
             reservation.setPassenger(passengers.get(0));
             reservation.setSchedule(c.getSchedule());
+            reservation.setReserveDate(new Date());
 
             Reservation savedReservation = reservationService.saveReservation(reservation);
 
@@ -393,6 +431,8 @@ public class ReservationController {
                 sr.setReservation(savedReservation);
                 sr.setSeat(s);
                 sr.setStatus("Pending");
+                sr.setTicketPriceAfterDis(ticketPriceAfterDiscounts);
+                sr.setDiscountAmount(ticketPriceBeforeDiscount - ticketPriceAfterDiscounts);
 
                 seatReservationList.add(sr);
             }
@@ -566,7 +606,7 @@ public class ReservationController {
             int reservationId = seatReservationList.get(0).getReservation().getReservationId();
             int maxSeatReservations = (reservationService.findReservedSeatsByReservationId(reservationId)).size();
 
-            double ticketPricePerPerson = seatReservationList.get(0).getReservation().getSchedule().getTicketPrice();
+            double ticketPricePerPerson = seatReservationList.get(0).getTicketPriceAfterDis();
             double totalRefund = ticketPricePerPerson * seatReservationList.size();
 
             Reservation reservation = reservationService.findReservationByRevId(reservationId);
@@ -643,6 +683,67 @@ public class ReservationController {
 
         return ResponseEntity.ok().body(resultMap);
 
+    }
+
+    @RequestMapping(value = "/loadTotalPaymentsForEachSchedule",method = RequestMethod.POST)
+    public ResponseEntity<?> loadTotalPaymentsForEachSchedule(@RequestBody Map<String,String> requestBody)throws ParseException {
+        List<Map<String,Object>> resultMap = new ArrayList<>();
+        String dateStr = requestBody.get("searchDate");
+        int userId = Integer.parseInt(requestBody.get("userId"));
+        int userTypeId = Integer.parseInt(requestBody.get("userTypeId"));
+
+        if(userTypeId == 1){
+            //admin
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = sdf.parse(dateStr);
+            List<Schedule> scheduleList = scheduleService.findScheduleByDate(date);
+
+            for(Schedule s : scheduleList){
+                Map<String,Object> scheduleData = new HashMap<>();
+                double totalPayment = 0;
+                double totalDiscount = 0;
+                List<SeatReservation> seatReservationList = reservationService.findReservedSeatsByScheduleId(s.getScheduleId());
+                for(SeatReservation sr : seatReservationList){
+                    totalPayment+= sr.getTicketPriceAfterDis();
+                    totalDiscount +=sr.getDiscountAmount();
+                }
+                scheduleData.put("seatReservations",seatReservationList);
+                scheduleData.put("schedule",s);
+                scheduleData.put("totalPayment",totalPayment);
+                scheduleData.put("totalDiscount", totalDiscount);
+
+                resultMap.add(scheduleData);
+
+            }
+
+        }else if(userTypeId == 2){
+            List<BusOwner> busOwnerList = busOwnerService.findBusOwnerByUserId(userId);
+            BusOwner busOwner = busOwnerList.get(0);
+            List<Schedule> scheduleList = scheduleService.findScheduleByBusOwnerIdDate(dateStr,busOwner.getBusOwnerId());
+
+            for(Schedule s : scheduleList){
+                Map<String,Object> scheduleData = new HashMap<>();
+                double totalPayment = 0;
+                double totalDiscount = 0;
+                List<SeatReservation> seatReservationList = reservationService.findReservedSeatsByScheduleId(s.getScheduleId());
+                for(SeatReservation sr : seatReservationList){
+                    totalPayment+= sr.getTicketPriceAfterDis();
+                    totalDiscount +=sr.getDiscountAmount();
+                }
+                scheduleData.put("seatReservations",seatReservationList);
+                scheduleData.put("schedule",s);
+                scheduleData.put("totalPayment",totalPayment);
+                scheduleData.put("totalDiscount", totalDiscount);
+
+                resultMap.add(scheduleData);
+
+            }
+
+        }
+
+
+
+        return ResponseEntity.ok().body(resultMap);
     }
 
 }
