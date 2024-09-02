@@ -78,4 +78,9 @@ public class ScheduleServiceImpl implements ScheduleService{
     public List<Schedule> findScheduleByBusOwnerIdDate(String searchDate, int busOwnerId) {
         return scheduleDao.findScheduleByBusOwnerIdDate(searchDate,busOwnerId);
     }
+
+    @Override
+    public List<TripCrew> getConductorDetailsByScheduleId(int scheduleId) {
+        return tripCrewDao.getConductorDetailsByScheduleId(scheduleId);
+    }
 }
