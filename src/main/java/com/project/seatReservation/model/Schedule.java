@@ -23,6 +23,15 @@ public class Schedule {
     private boolean end;
     private boolean isCancelled;
     private double ticketPrice;
+    private boolean isNotified;
+
+    public boolean getIsNotified() {
+        return isNotified;
+    }
+
+    public void setIsNotified(boolean notified) {
+        isNotified = notified;
+    }
 
     public int getScheduleId() {
         return scheduleId;
