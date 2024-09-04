@@ -1,11 +1,9 @@
 package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.seatReservation.model.BusCrew;
-import com.project.seatReservation.model.Reservation;
-import com.project.seatReservation.model.Schedule;
-import com.project.seatReservation.model.TripCrew;
+import com.project.seatReservation.model.*;
 import com.project.seatReservation.service.BusCrewService;
+import com.project.seatReservation.service.BusService;
 import com.project.seatReservation.service.ReservationService;
 import com.project.seatReservation.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +24,13 @@ public class ScheduleController {
     ScheduleService scheduleService;
     BusCrewService busCrewService;
     ReservationService reservationService;
+    BusService busService;
 
-    public ScheduleController(ScheduleService scheduleService, BusCrewService busCrewService,ReservationService reservationService) {
+    public ScheduleController(ScheduleService scheduleService, BusCrewService busCrewService,ReservationService reservationService,BusService busService) {
         this.scheduleService = scheduleService;
         this.busCrewService = busCrewService;
         this.reservationService = reservationService;
+        this.busService = busService;
     }
 
     @RequestMapping(value = "/saveSchedule", method = RequestMethod.POST)
@@ -207,7 +207,8 @@ public class ScheduleController {
 
         if(scheduleList != null && !scheduleList.isEmpty()){
             Schedule s = scheduleList.get(0);
-            int allSeats = s.getBus().getNoOfSeats();
+            List<Seat> seatStructure = busService.findSeatStructureByBusId(s.getBus().getBusId());
+            int allSeats = seatStructure.size();
             List<Reservation> reservationList = reservationService.findReservationsByScheduleId(scheduleId);
 
             availableSeat = allSeats - reservationList.size();

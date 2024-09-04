@@ -29,4 +29,7 @@ public interface ScheduleDao extends JpaRepository<Schedule, Integer> {
 
     @Query("SELECT s FROM Schedule s INNER JOIN Reservation  r ON r.schedule.scheduleId = s.scheduleId WHERE DATE(s.tripDateStr) = :date AND r.passenger.user.userId = :userId AND r.isCancelled = false AND r.isPaymentCompleted = true")
     List<Schedule> getTodaysScheduleByUserId(int userId, Date date);
+
+    @Query("SELECT s FROM Schedule  s WHERE DATE(s.tripDateStr) > :today ")
+    List<Schedule> findFutureSchedulesByDate(Date today);
 }

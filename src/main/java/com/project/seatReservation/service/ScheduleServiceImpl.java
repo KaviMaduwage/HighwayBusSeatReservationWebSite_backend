@@ -83,4 +83,9 @@ public class ScheduleServiceImpl implements ScheduleService{
     public List<TripCrew> getConductorDetailsByScheduleId(int scheduleId) {
         return tripCrewDao.getConductorDetailsByScheduleId(scheduleId);
     }
+
+    @Override
+    public List<Schedule> findFutureSchedulesByDate(Date today) {
+        return scheduleDao.findFutureSchedulesByDate(today);
+    }
 }

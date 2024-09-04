@@ -31,4 +31,6 @@ public interface ScheduleService {
     List<Schedule> findScheduleByBusOwnerIdDate(String searchDate, int busOwnerId);
 
     List<TripCrew> getConductorDetailsByScheduleId(int scheduleId);
+
+    List<Schedule> findFutureSchedulesByDate(Date today);
 }

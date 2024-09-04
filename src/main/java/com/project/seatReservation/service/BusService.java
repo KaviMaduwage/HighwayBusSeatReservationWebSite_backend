@@ -23,4 +23,6 @@ public interface BusService {
     List<Bus> loadAllBusDetailsInTravelService(int busOwnerId);
 
     List<Seat> getSeatsBySeatNoStr(String[] seatNos, int busId);
+
+    List<Seat> findSeatsByBusIdRowandColNo(int busId, int row, int col);
 }
