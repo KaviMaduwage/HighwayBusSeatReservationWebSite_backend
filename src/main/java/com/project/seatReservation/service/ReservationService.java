@@ -78,4 +78,10 @@ public interface ReservationService {
     List<SeatReservation> getCancelledReservations(int userId);
 
     List<Schedule> getTodaysScheduleByUserId(int userId);
+
+    List<NotifySeatCancellation> findNotifySeatCancellationsByPassengerIdScheduleId(int passengerId, int scheduleId);
+
+    void saveNotifySeatCancellation(NotifySeatCancellation nsc);
+
+    void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation);
 }

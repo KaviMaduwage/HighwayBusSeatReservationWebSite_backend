@@ -746,4 +746,34 @@ public class ReservationController {
         return ResponseEntity.ok().body(resultMap);
     }
 
+    @RequestMapping(value = "/updateNotifingCancelledReservations", method = RequestMethod.POST)
+    public ResponseEntity<?> updateNotifingCancelledReservations(@RequestBody Map<String,Integer> requestBody){
+
+        String message = "";
+        int scheduleId = requestBody.get("scheduleId");
+        int userId = requestBody.get("userId");
+
+        List<Passenger> passengers = passengerService.findPassengerByUserId(userId);
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleId);
+
+        List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),scheduleId);
+
+        if(seatCancellations != null && seatCancellations.size() >0){
+            // update notification
+            reservationService.deleteNotifySeatCancellation(seatCancellations.get(0));
+            message = "Successfully removed notification sending for cancelled reservations.";
+        }else{
+            // add new
+            NotifySeatCancellation nsc = new NotifySeatCancellation();
+            nsc.setPassenger(passengers.get(0));
+            nsc.setSchedule(scheduleList.get(0));
+            nsc.setCreatedDate(new Date());
+
+            reservationService.saveNotifySeatCancellation(nsc);
+            message = "Successfully saved notification sending for cancelled reservations.";
+        }
+        return ResponseEntity.ok().body(message);
+
+    }
+
 }

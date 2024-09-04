@@ -2,10 +2,7 @@ package com.project.seatReservation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.*;
-import com.project.seatReservation.service.BusCrewService;
-import com.project.seatReservation.service.BusService;
-import com.project.seatReservation.service.ReservationService;
-import com.project.seatReservation.service.ScheduleService;
+import com.project.seatReservation.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,11 +23,14 @@ public class ScheduleController {
     ReservationService reservationService;
     BusService busService;
 
-    public ScheduleController(ScheduleService scheduleService, BusCrewService busCrewService,ReservationService reservationService,BusService busService) {
+    PassengerService passengerService;
+
+    public ScheduleController(ScheduleService scheduleService, BusCrewService busCrewService,ReservationService reservationService,BusService busService,PassengerService passengerService) {
         this.scheduleService = scheduleService;
         this.busCrewService = busCrewService;
         this.reservationService = reservationService;
         this.busService = busService;
+        this.passengerService = passengerService;
     }
 
     @RequestMapping(value = "/saveSchedule", method = RequestMethod.POST)
@@ -168,6 +168,7 @@ public class ScheduleController {
     public ResponseEntity<?> loadScheduleByDate(@RequestBody Map<String,String> requestBody){
         List<Schedule> scheduleList = new ArrayList<>();
         String date = requestBody.get("date");
+        String userId = requestBody.get("userId");
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date newDate =null;
@@ -189,6 +190,15 @@ public class ScheduleController {
 
             int availableSeats = checkSeatAvailabilityByScheduleId(schedule.getScheduleId());
             s.put("seatsAvailable", availableSeats);
+
+            List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
+            if(passengers != null && passengers.size() >0){
+                List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
+                if(seatCancellations != null && seatCancellations.size() >0){
+                    s.put("isCancelledNotified",true);
+                }
+
+            }
 
             responseData.add(s);
         }
@@ -224,6 +234,7 @@ public class ScheduleController {
         String origin = requestBody.get("origin");
         String destination = requestBody.get("destination");
         String routeIdStr = requestBody.get("routeId");
+        String userId = requestBody.get("userId");
 
         int routeId = (routeIdStr.equals("") ? 0 : Integer.parseInt(routeIdStr));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -247,6 +258,15 @@ public class ScheduleController {
 
             int availableSeats = checkSeatAvailabilityByScheduleId(schedule.getScheduleId());
             s.put("seatsAvailable", availableSeats);
+
+            List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
+            if(passengers != null && passengers.size() >0){
+                List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
+                if(seatCancellations != null && seatCancellations.size() >0){
+                    s.put("isCancelledNotified",true);
+                }
+
+            }
 
             responseData.add(s);
         }
