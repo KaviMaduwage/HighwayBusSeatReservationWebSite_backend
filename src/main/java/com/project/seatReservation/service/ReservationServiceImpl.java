@@ -270,5 +270,10 @@ public class ReservationServiceImpl implements ReservationService{
     public void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation) {
         notifySeatCancellationDao.delete(notifySeatCancellation);
     }
+
+    @Override
+    public List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId) {
+        return notifySeatCancellationDao.findNotifySeatCancellationsByScheduleId(scheduleId);
+    }
 }
 

@@ -84,4 +84,6 @@ public interface ReservationService {
     void saveNotifySeatCancellation(NotifySeatCancellation nsc);
 
     void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation);
+
+    List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId);
 }

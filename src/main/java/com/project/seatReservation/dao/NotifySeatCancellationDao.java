@@ -10,4 +10,7 @@ public interface NotifySeatCancellationDao extends JpaRepository<NotifySeatCance
 
     @Query("SELECT n FROM NotifySeatCancellation n WHERE n.schedule.scheduleId = :scheduleId AND n.passenger.passengerId = :passengerId")
     List<NotifySeatCancellation> findNotifySeatCancellationsByPassengerIdScheduleId(int passengerId, int scheduleId);
+
+    @Query("SELECT n FROM NotifySeatCancellation n WHERE n.schedule.scheduleId = :scheduleId")
+    List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId);
 }

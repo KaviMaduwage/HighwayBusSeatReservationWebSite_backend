@@ -37,11 +37,13 @@ public class ReservationController {
 
     BusOwnerService busOwnerService;
     BusCrewService busCrewService;
+    EmailService emailService;
 
     public ReservationController(UserService userService, ScheduleService scheduleService,
                                  ReservationService reservationService,PaymentService paymentService,
                                  ReportService reportService,PassengerService passengerService,BusService busService,
-                                 BusOwnerService busOwnerService,BusCrewService busCrewService,DiscountService discountService) {
+                                 BusOwnerService busOwnerService,BusCrewService busCrewService,DiscountService discountService,
+                                 EmailService emailService) {
         this.userService = userService;
         this.scheduleService = scheduleService;
         this.reservationService = reservationService;
@@ -52,6 +54,7 @@ public class ReservationController {
         this.busCrewService= busCrewService;
         this.busOwnerService = busOwnerService;
         this.discountService = discountService;
+        this.emailService = emailService;
     }
 
     @RequestMapping(value = "/findBlockedSeatsByScheduleId", method = RequestMethod.POST)
@@ -653,10 +656,35 @@ public class ReservationController {
 
             message = "Successfully cancel the ticket/s and added money to the wallet.";
 
+
+            // notify other passengers who need a seat
+            notifyOtherPassengersRegardingTheCancellation(reservation.getSchedule().getScheduleId());
+
+
         }else{
             message = "Error in reservation cancellation process.";
         }
         return message;
+    }
+
+    private void notifyOtherPassengersRegardingTheCancellation(int scheduleId) {
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleId);
+        Schedule schedule = scheduleList.get(0);
+
+        List<NotifySeatCancellation> notifySeatCancellationList = reservationService.findNotifySeatCancellationsByScheduleId(scheduleId);
+        if(notifySeatCancellationList != null && notifySeatCancellationList.size() >0){
+            for(NotifySeatCancellation nsc : notifySeatCancellationList){
+                String toAddress = nsc.getPassenger().getUser().getEmail();
+                String fromAddress = "myseatofficial@gmail.com";
+                String senderName = "My Seat";
+                String subject = "My Seat Reservation Cancellation";
+                String content = "Please note.\n\n" +
+                        "Regarding"+schedule.getTripDateStr()+" schedule from "+schedule.getTripStartTime()+" to "+schedule.getTripEndTime()+".\n" +
+                        "You have now available seats. Hurry up and secure your seat"+"\n";
+
+                emailService.sendEmails(toAddress, fromAddress, senderName, subject, content);
+            }
+        }
     }
 
     @RequestMapping(value = "/getUpcomingReservationsByUserId", method = RequestMethod.POST)
