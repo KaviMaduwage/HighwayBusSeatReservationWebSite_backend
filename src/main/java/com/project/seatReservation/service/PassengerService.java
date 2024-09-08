@@ -15,4 +15,6 @@ public interface PassengerService {
     TempPassenger findTempPassengerByUserId(int userId);
 
     void updatePassenger(Passenger passenger);
+
+    List<Passenger> findAllPassengers();
 }

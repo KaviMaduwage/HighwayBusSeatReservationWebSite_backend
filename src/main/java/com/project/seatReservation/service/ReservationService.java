@@ -86,4 +86,8 @@ public interface ReservationService {
     void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation);
 
     List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId);
+
+    List<SeatReservation> findAllUpcomingReservations();
+
+    List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId);
 }

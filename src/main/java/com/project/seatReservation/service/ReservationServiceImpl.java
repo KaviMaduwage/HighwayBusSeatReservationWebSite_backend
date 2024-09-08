@@ -275,5 +275,15 @@ public class ReservationServiceImpl implements ReservationService{
     public List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId) {
         return notifySeatCancellationDao.findNotifySeatCancellationsByScheduleId(scheduleId);
     }
+
+    @Override
+    public List<SeatReservation> findAllUpcomingReservations() {
+        return seatReservationDao.findAllUpcomingReservations(new Date());
+    }
+
+    @Override
+    public List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId) {
+        return seatReservationDao.findAllUpcomingReservationsByTravelService(busOwnerId,new Date());
+    }
 }
 
