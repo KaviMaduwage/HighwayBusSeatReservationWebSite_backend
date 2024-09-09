@@ -12,4 +12,6 @@ public interface BusOwnerService {
     List<BusOwner> findActiveBusOwnerList();
 
     List<BusOwner> getAllBusOwners();
+
+    void updateBusOwner(BusOwner busOwner);
 }

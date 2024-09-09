@@ -165,4 +165,23 @@ public class UserController {
 
         return ResponseEntity.ok().body(resultMap);
     }
+
+    @RequestMapping(value = "/updateBusOwnerDetails",method = RequestMethod.POST)
+    public ResponseEntity<?> updateBusOwnerDetails(@RequestBody BusOwner busOwner){
+        String message = "";
+
+        int userId = busOwner.getUser().getUserId();
+        String newEmail = busOwner.getUser().getEmail();
+
+        User savedUser = userService.findUserByUserId(userId);
+        if(savedUser != null && !newEmail.equals(savedUser.getEmail())){
+            savedUser.setEmail(newEmail);
+            userService.updateUser(savedUser);
+        }
+
+        busOwnerService.updateBusOwner(busOwner);
+
+        message = "Successfully updated the travel service details.";
+        return ResponseEntity.ok().body(message);
+    }
 }
