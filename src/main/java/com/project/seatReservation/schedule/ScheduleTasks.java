@@ -114,12 +114,15 @@ public class ScheduleTasks {
         String start = s.getOrigin();
         String end = s.getDestination();
         String busPlateNo = s.getBus().getPlateNo();
+        String date = s.getTripDateStr();
+        String startTime = s.getTripStartTime();
 
         String fromAddress = "myseatofficial@gmail.com";
         String senderName = "My Seat";
         String subject = "My Seat Reservation";
         String content = "Please note.\n\n" +
-                "Regarding schedule from "+start+" to "+end+"\n" +
+                "Regarding schedule on "+date+" from "+start+" to "+end+"\n" +
+                "Trip start time - "+startTime+"\n" +
                 "Bus plate no - "+busPlateNo+"\n" +
                 "Occupied seats -"+availableSeatsStr;
 
@@ -162,6 +165,8 @@ public class ScheduleTasks {
         String end = sr.getReservation().getSchedule().getDestination();
         String busPlateNo = sr.getReservation().getSchedule().getBus().getPlateNo();
         String conductorNo = "N/A";
+        String date = sr.getReservation().getSchedule().getTripDateStr();
+        String startTime = sr.getReservation().getSchedule().getTripStartTime();
 
         List<TripCrew> conductors = scheduleService.getConductorDetailsByScheduleId(sr.getReservation().getSchedule().getScheduleId());
         if(conductors != null && conductors.size() > 0){
@@ -173,7 +178,7 @@ public class ScheduleTasks {
         String senderName = "My Seat";
         String subject = "My Seat Reservation";
         String content = "Please note.\n\n" +
-                "Regarding reservation from "+start+" to "+end+"\n" +
+                "Regarding reservation from "+start+" to "+end+" on "+date+" at "+startTime+" \n" +
                 "Bus plate no - "+busPlateNo+"\n" +
                 "Conductor No -"+conductorNo;
 

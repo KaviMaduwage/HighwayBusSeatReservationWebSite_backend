@@ -17,7 +17,7 @@ public interface ScheduleDao extends JpaRepository<Schedule, Integer> {
     @Query("SELECT s FROM Schedule  s WHERE s.scheduleId = :scheduleId ")
     List<Schedule> findScheduleById(int scheduleId);
 
-    @Query("SELECT s FROM Schedule s WHERE DATE(s.tripDateStr) = :date AND ('' = :origin OR s.origin = :origin) AND ('' = :destination OR s.destination = :destination) " +
+    @Query("SELECT s FROM Schedule s WHERE DATE(s.tripDateStr) = :date AND ('' = :origin OR '0' = :origin OR s.bus.route.routeDescription LIKE CONCAT('%',:origin,'%')) AND ('' = :destination OR '0' = :destination OR s.bus.route.routeDescription LIKE CONCAT('%',:destination,'%')) " +
             "AND (0 = :routeId OR s.bus.route.routeId = :routeId)")
     List<Schedule> findBusScheduleByDateTownAndRoute(Date date, String origin, String destination, int routeId);
 

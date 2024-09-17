@@ -2,6 +2,7 @@ package com.project.seatReservation.service;
 
 import com.project.seatReservation.model.*;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ReservationService {
@@ -90,4 +91,6 @@ public interface ReservationService {
     List<SeatReservation> findAllUpcomingReservations();
 
     List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId);
+
+    List<Reservation> findReservationsByUserIdAndDateRange(int userId, Date fromDate, Date toDate);
 }

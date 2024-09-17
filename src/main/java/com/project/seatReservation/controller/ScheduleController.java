@@ -191,14 +191,17 @@ public class ScheduleController {
             int availableSeats = checkSeatAvailabilityByScheduleId(schedule.getScheduleId());
             s.put("seatsAvailable", availableSeats);
 
-            List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
-            if(passengers != null && passengers.size() >0){
-                List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
-                if(seatCancellations != null && seatCancellations.size() >0){
-                    s.put("isCancelledNotified",true);
-                }
+            if(userId != null){
+                List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
+                if(passengers != null && passengers.size() >0){
+                    List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
+                    if(seatCancellations != null && seatCancellations.size() >0){
+                        s.put("isCancelledNotified",true);
+                    }
 
+                }
             }
+
 
             responseData.add(s);
         }
@@ -219,7 +222,7 @@ public class ScheduleController {
             Schedule s = scheduleList.get(0);
             List<Seat> seatStructure = busService.findSeatStructureByBusId(s.getBus().getBusId());
             int allSeats = seatStructure.size();
-            List<Reservation> reservationList = reservationService.findReservationsByScheduleId(scheduleId);
+            List<SeatReservation> reservationList = reservationService.findReservedSeatsByScheduleId(scheduleId);
 
             availableSeat = allSeats - reservationList.size();
         }
@@ -259,14 +262,18 @@ public class ScheduleController {
             int availableSeats = checkSeatAvailabilityByScheduleId(schedule.getScheduleId());
             s.put("seatsAvailable", availableSeats);
 
-            List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
-            if(passengers != null && passengers.size() >0){
-                List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
-                if(seatCancellations != null && seatCancellations.size() >0){
-                    s.put("isCancelledNotified",true);
-                }
+            if(userId != null){
+                List<Passenger> passengers =passengerService.findPassengerByUserId(Integer.parseInt(userId));
+                if(passengers != null && passengers.size() >0){
+                    List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),schedule.getScheduleId());
+                    if(seatCancellations != null && seatCancellations.size() >0){
+                        s.put("isCancelledNotified",true);
+                    }
 
+                }
             }
+
+
 
             responseData.add(s);
         }

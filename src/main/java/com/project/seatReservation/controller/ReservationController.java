@@ -213,7 +213,7 @@ public class ReservationController {
             int busOwnerId = c.getSchedule().getBus().getBusOwner().getBusOwnerId();
 
             List<Discount> availableDiscounts = new ArrayList<>();
-            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,0,busOwnerId);
+            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,routeId,busOwnerId);
             for(Discount d : discounts){
                 if(d.getRoute() == null){
                     availableDiscounts.add(d);
@@ -376,7 +376,8 @@ public class ReservationController {
     private double getTicketPrice(Schedule schedule) {
 
         double ticketPriceBeforeDis = schedule.getTicketPrice();
-        List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(schedule.getTripDateStr(), 0,schedule.getBus().getBusOwner().getBusOwnerId());
+        int routeId = schedule.getBus().getRoute().getRouteId();
+        List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(schedule.getTripDateStr(), routeId,schedule.getBus().getBusOwner().getBusOwnerId());
         double disAmount = 0;
         for(Discount d : discounts){
             if(d.getRoute() == null){

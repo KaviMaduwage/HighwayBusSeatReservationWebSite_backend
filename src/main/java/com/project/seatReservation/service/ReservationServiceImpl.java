@@ -285,5 +285,10 @@ public class ReservationServiceImpl implements ReservationService{
     public List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId) {
         return seatReservationDao.findAllUpcomingReservationsByTravelService(busOwnerId,new Date());
     }
+
+    @Override
+    public List<Reservation> findReservationsByUserIdAndDateRange(int userId, Date fromDate, Date toDate) {
+        return reservationDao.findReservationsByUserIdAndDateRange(userId,fromDate,toDate);
+    }
 }
 
