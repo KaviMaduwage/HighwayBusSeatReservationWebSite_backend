@@ -17,16 +17,19 @@ public interface ScheduleDao extends JpaRepository<Schedule, Integer> {
     @Query("SELECT s FROM Schedule  s WHERE s.scheduleId = :scheduleId ")
     List<Schedule> findScheduleById(int scheduleId);
 
-    @Query("SELECT s FROM Schedule s WHERE DATE(s.tripDateStr) = :date AND ('' = :origin OR s.origin = :origin) AND ('' = :destination OR s.destination = :destination) " +
+    @Query("SELECT s FROM Schedule s WHERE DATE(s.tripDateStr) = :date AND ('' = :origin OR '0' = :origin OR s.bus.route.routeDescription LIKE CONCAT('%',:origin,'%')) AND ('' = :destination OR '0' = :destination OR s.bus.route.routeDescription LIKE CONCAT('%',:destination,'%')) " +
             "AND (0 = :routeId OR s.bus.route.routeId = :routeId)")
     List<Schedule> findBusScheduleByDateTownAndRoute(Date date, String origin, String destination, int routeId);
 
     @Query("SELECT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.busCrew.busCrewId = :busCrewId AND s.tripDateStr = :today")
     List<Schedule> findBusCrewTodaySchedule(String today, int busCrewId);
 
-    @Query("SELECT DISTINCT s FROM Schedule  s INNER JOIN TripCrew  tc ON tc.schedule.scheduleId = s.scheduleId WHERE tc.schedule.bus.busOwner.busOwnerId = :busOwnerId AND s.tripDateStr = :searchDate")
+    @Query("SELECT DISTINCT s FROM Schedule  s  WHERE s.bus.busOwner.busOwnerId = :busOwnerId AND s.tripDateStr = :searchDate")
     List<Schedule> findScheduleByBusOwnerIdDate(String searchDate, int busOwnerId);
 
     @Query("SELECT s FROM Schedule s INNER JOIN Reservation  r ON r.schedule.scheduleId = s.scheduleId WHERE DATE(s.tripDateStr) = :date AND r.passenger.user.userId = :userId AND r.isCancelled = false AND r.isPaymentCompleted = true")
     List<Schedule> getTodaysScheduleByUserId(int userId, Date date);
+
+    @Query("SELECT s FROM Schedule  s WHERE DATE(s.tripDateStr) > :today ")
+    List<Schedule> findFutureSchedulesByDate(Date today);
 }

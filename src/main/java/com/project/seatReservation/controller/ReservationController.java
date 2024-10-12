@@ -37,11 +37,13 @@ public class ReservationController {
 
     BusOwnerService busOwnerService;
     BusCrewService busCrewService;
+    EmailService emailService;
 
     public ReservationController(UserService userService, ScheduleService scheduleService,
                                  ReservationService reservationService,PaymentService paymentService,
                                  ReportService reportService,PassengerService passengerService,BusService busService,
-                                 BusOwnerService busOwnerService,BusCrewService busCrewService,DiscountService discountService) {
+                                 BusOwnerService busOwnerService,BusCrewService busCrewService,DiscountService discountService,
+                                 EmailService emailService) {
         this.userService = userService;
         this.scheduleService = scheduleService;
         this.reservationService = reservationService;
@@ -52,6 +54,7 @@ public class ReservationController {
         this.busCrewService= busCrewService;
         this.busOwnerService = busOwnerService;
         this.discountService = discountService;
+        this.emailService = emailService;
     }
 
     @RequestMapping(value = "/findBlockedSeatsByScheduleId", method = RequestMethod.POST)
@@ -210,7 +213,7 @@ public class ReservationController {
             int busOwnerId = c.getSchedule().getBus().getBusOwner().getBusOwnerId();
 
             List<Discount> availableDiscounts = new ArrayList<>();
-            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,0,busOwnerId);
+            List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(tripDateStr,routeId,busOwnerId);
             for(Discount d : discounts){
                 if(d.getRoute() == null){
                     availableDiscounts.add(d);
@@ -373,7 +376,8 @@ public class ReservationController {
     private double getTicketPrice(Schedule schedule) {
 
         double ticketPriceBeforeDis = schedule.getTicketPrice();
-        List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(schedule.getTripDateStr(), 0,schedule.getBus().getBusOwner().getBusOwnerId());
+        int routeId = schedule.getBus().getRoute().getRouteId();
+        List<Discount> discounts = discountService.findDiscountsByDateRouteAndBusOwner(schedule.getTripDateStr(), routeId,schedule.getBus().getBusOwner().getBusOwnerId());
         double disAmount = 0;
         for(Discount d : discounts){
             if(d.getRoute() == null){
@@ -653,10 +657,35 @@ public class ReservationController {
 
             message = "Successfully cancel the ticket/s and added money to the wallet.";
 
+
+            // notify other passengers who need a seat
+            notifyOtherPassengersRegardingTheCancellation(reservation.getSchedule().getScheduleId());
+
+
         }else{
             message = "Error in reservation cancellation process.";
         }
         return message;
+    }
+
+    private void notifyOtherPassengersRegardingTheCancellation(int scheduleId) {
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleId);
+        Schedule schedule = scheduleList.get(0);
+
+        List<NotifySeatCancellation> notifySeatCancellationList = reservationService.findNotifySeatCancellationsByScheduleId(scheduleId);
+        if(notifySeatCancellationList != null && notifySeatCancellationList.size() >0){
+            for(NotifySeatCancellation nsc : notifySeatCancellationList){
+                String toAddress = nsc.getPassenger().getUser().getEmail();
+                String fromAddress = "myseatofficial@gmail.com";
+                String senderName = "My Seat";
+                String subject = "My Seat Reservation Cancellation";
+                String content = "Please note.\n\n" +
+                        "Regarding"+schedule.getTripDateStr()+" schedule from "+schedule.getTripStartTime()+" to "+schedule.getTripEndTime()+".\n" +
+                        "You have now available seats. Hurry up and secure your seat"+"\n";
+
+                emailService.sendEmails(toAddress, fromAddress, senderName, subject, content);
+            }
+        }
     }
 
     @RequestMapping(value = "/getUpcomingReservationsByUserId", method = RequestMethod.POST)
@@ -744,6 +773,36 @@ public class ReservationController {
 
 
         return ResponseEntity.ok().body(resultMap);
+    }
+
+    @RequestMapping(value = "/updateNotifingCancelledReservations", method = RequestMethod.POST)
+    public ResponseEntity<?> updateNotifingCancelledReservations(@RequestBody Map<String,Integer> requestBody){
+
+        String message = "";
+        int scheduleId = requestBody.get("scheduleId");
+        int userId = requestBody.get("userId");
+
+        List<Passenger> passengers = passengerService.findPassengerByUserId(userId);
+        List<Schedule> scheduleList = scheduleService.findScheduleById(scheduleId);
+
+        List<NotifySeatCancellation> seatCancellations = reservationService.findNotifySeatCancellationsByPassengerIdScheduleId(passengers.get(0).getPassengerId(),scheduleId);
+
+        if(seatCancellations != null && seatCancellations.size() >0){
+            // update notification
+            reservationService.deleteNotifySeatCancellation(seatCancellations.get(0));
+            message = "Successfully removed notification sending for cancelled reservations.";
+        }else{
+            // add new
+            NotifySeatCancellation nsc = new NotifySeatCancellation();
+            nsc.setPassenger(passengers.get(0));
+            nsc.setSchedule(scheduleList.get(0));
+            nsc.setCreatedDate(new Date());
+
+            reservationService.saveNotifySeatCancellation(nsc);
+            message = "Successfully saved notification sending for cancelled reservations.";
+        }
+        return ResponseEntity.ok().body(message);
+
     }
 
 }

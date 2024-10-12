@@ -24,10 +24,11 @@ public class ReservationServiceImpl implements ReservationService{
     SeatDao seatDao;
 
     ScheduleDao scheduleDao;
+    NotifySeatCancellationDao notifySeatCancellationDao;
 
     public ReservationServiceImpl(ReservationDao reservationDao, BlockedSeatDao blockedSeatDao, CartDao cartDao,
                                   CartAddedBlockedSeatDao cartAddedBlockedSeatDao,SeatReservationDao seatReservationDao,
-                                  SeatDao seatDao, ScheduleDao scheduleDao) {
+                                  SeatDao seatDao, ScheduleDao scheduleDao,NotifySeatCancellationDao notifySeatCancellationDao) {
         this.reservationDao = reservationDao;
         this.blockedSeatDao = blockedSeatDao;
         this.cartDao = cartDao;
@@ -35,6 +36,7 @@ public class ReservationServiceImpl implements ReservationService{
         this.seatReservationDao = seatReservationDao;
         this.seatDao = seatDao;
         this.scheduleDao = scheduleDao;
+        this.notifySeatCancellationDao = notifySeatCancellationDao;
     }
 
     @Override
@@ -253,4 +255,40 @@ public class ReservationServiceImpl implements ReservationService{
     public List<Schedule> getTodaysScheduleByUserId(int userId) {
         return scheduleDao.getTodaysScheduleByUserId(userId,new Date());
     }
+
+    @Override
+    public List<NotifySeatCancellation> findNotifySeatCancellationsByPassengerIdScheduleId(int passengerId, int scheduleId) {
+        return notifySeatCancellationDao.findNotifySeatCancellationsByPassengerIdScheduleId(passengerId,scheduleId);
+    }
+
+    @Override
+    public void saveNotifySeatCancellation(NotifySeatCancellation nsc) {
+        notifySeatCancellationDao.save(nsc);
+    }
+
+    @Override
+    public void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation) {
+        notifySeatCancellationDao.delete(notifySeatCancellation);
+    }
+
+    @Override
+    public List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId) {
+        return notifySeatCancellationDao.findNotifySeatCancellationsByScheduleId(scheduleId);
+    }
+
+    @Override
+    public List<SeatReservation> findAllUpcomingReservations() {
+        return seatReservationDao.findAllUpcomingReservations(new Date());
+    }
+
+    @Override
+    public List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId) {
+        return seatReservationDao.findAllUpcomingReservationsByTravelService(busOwnerId,new Date());
+    }
+
+    @Override
+    public List<Reservation> findReservationsByUserIdAndDateRange(int userId, Date fromDate, Date toDate) {
+        return reservationDao.findReservationsByUserIdAndDateRange(userId,fromDate,toDate);
+    }
 }
+

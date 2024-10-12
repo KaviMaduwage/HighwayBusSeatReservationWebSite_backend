@@ -288,7 +288,7 @@ public class BusCrewController {
         if(scheduleList != null && !scheduleList.isEmpty()){
             Schedule s = scheduleList.get(0);
             int allSeats = s.getBus().getNoOfSeats();
-            List<Reservation> reservationList = reservationService.findReservationsByScheduleId(scheduleId);
+            List<SeatReservation> reservationList = reservationService.findReservedSeatsByScheduleId(scheduleId);
 
             availableSeat = allSeats - reservationList.size();
             availableSeatsStr = reservationList.size() +"/"+allSeats;

@@ -2,6 +2,7 @@ package com.project.seatReservation.service;
 
 import com.project.seatReservation.model.*;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ReservationService {
@@ -78,4 +79,18 @@ public interface ReservationService {
     List<SeatReservation> getCancelledReservations(int userId);
 
     List<Schedule> getTodaysScheduleByUserId(int userId);
+
+    List<NotifySeatCancellation> findNotifySeatCancellationsByPassengerIdScheduleId(int passengerId, int scheduleId);
+
+    void saveNotifySeatCancellation(NotifySeatCancellation nsc);
+
+    void deleteNotifySeatCancellation(NotifySeatCancellation notifySeatCancellation);
+
+    List<NotifySeatCancellation> findNotifySeatCancellationsByScheduleId(int scheduleId);
+
+    List<SeatReservation> findAllUpcomingReservations();
+
+    List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId);
+
+    List<Reservation> findReservationsByUserIdAndDateRange(int userId, Date fromDate, Date toDate);
 }

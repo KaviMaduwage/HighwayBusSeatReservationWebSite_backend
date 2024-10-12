@@ -3,27 +3,31 @@ package com.project.seatReservation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.seatReservation.model.Bus;
 import com.project.seatReservation.model.BusOwner;
+import com.project.seatReservation.model.Schedule;
 import com.project.seatReservation.model.Seat;
 import com.project.seatReservation.service.BusOwnerService;
 import com.project.seatReservation.service.BusService;
+import com.project.seatReservation.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Controller
 @CrossOrigin
 public class BusController {
     BusService busService;
     BusOwnerService busOwnerService;
+    ScheduleService scheduleService;
 
-    public BusController(BusService busService, BusOwnerService busOwnerService) {
+    public BusController(BusService busService, BusOwnerService busOwnerService,ScheduleService scheduleService) {
         this.busService = busService;
         this.busOwnerService = busOwnerService;
+        this.scheduleService = scheduleService;
     }
 
     @RequestMapping(value = "/saveBusDetails", method = RequestMethod.POST)
@@ -79,11 +83,42 @@ public class BusController {
         List<Map<String,Integer>> selectedSeats = new ArrayList<>();
 
         selectedSeats = (List<Map<String, Integer>>) requestBody.get("seatStructure");
+        List<String> selectedSeatsStrList = new ArrayList<>();
+        for(Map<String,Integer> seat : selectedSeats){
+            int row = seat.get("row");
+            int col = seat.get("col");
+
+            selectedSeatsStrList.add(row+"-"+col);
+
+        }
+
         int busId = (int) requestBody.get("busId");
         Bus bus = busService.findBusById(busId);
 
         List<Seat> seatList = new ArrayList<>();
 
+
+
+        List<Schedule> futureScheduleList = scheduleService.findFutureSchedulesByDate(new Date());
+        List<Seat> alreadyAvailableSeats = busService.findSeatStructureByBusId(busId);
+
+        // find removing seats
+        List<Seat> removingSeatList = new ArrayList<>();
+        for(Seat s : alreadyAvailableSeats){
+            String pattern = s.getRowNo()+"-"+s.getColumnNo();
+            if(!selectedSeatsStrList.contains(pattern)){
+                Seat removeSeat = new Seat();
+                removeSeat.setSeatId(s.getSeatId());
+                removeSeat.setColumnNo(s.getColumnNo());
+                removeSeat.setRowNo(s.getRowNo());
+                removeSeat.setBus(bus);
+
+                removeSeat.setIsLocked(true);
+                removingSeatList.add(removeSeat);
+            }
+        }
+
+        //add new seats
         for(Map<String,Integer> seat : selectedSeats){
             int row = seat.get("row");
             int col = seat.get("col");
@@ -93,12 +128,38 @@ public class BusController {
             busSeat.setRowNo(row);
             busSeat.setBus(bus);
 
-            seatList.add(busSeat);
+            List<Seat> availableSeats = busService.findSeatsByBusIdRowandColNo(busId,row,col);
+            if(availableSeats == null || availableSeats.isEmpty()){
+                seatList.add(busSeat);
+            }else  if(!availableSeats.isEmpty()){
+                Seat seat1 = availableSeats.get(0);
+                if(seat1.getIsLocked()){
+                    seat1.setIsLocked(false);
+                    seatList.add(seat1);
+                }
+
+            }
+
 
         }
 
-        busService.saveSeatStructure(seatList);
-        message = "Successfully saved the seat structure";
+
+
+        if(seatList.size() > 0){
+            busService.saveSeatStructure(seatList);
+            message = "Successfully saved the new seats. ";
+        }
+
+        if(removingSeatList.size() >0 && futureScheduleList.isEmpty()){
+            busService.saveSeatStructure(removingSeatList);
+            message += "Successfully removed the selected seats. ";
+        }else{
+            message += "Can't remove previously selected seats becasue you have future schedules for the selected bus.";
+        }
+
+        if(message.equals("")){
+            message = "No change in the structure.";
+        }
 
 
         return ResponseEntity.ok().body(message);

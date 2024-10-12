@@ -4,6 +4,7 @@ import com.project.seatReservation.model.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ReservationDao extends JpaRepository<Reservation,Integer> {
@@ -18,4 +19,7 @@ public interface ReservationDao extends JpaRepository<Reservation,Integer> {
 
     @Query("SELECT r FROM Reservation r WHERE r.reservationId = :reservationId")
     Reservation findReservationByRevId(Integer reservationId);
+
+    @Query("SELECT r FROM Reservation r WHERE r.passenger.user.userId = :userId AND DATE(r.schedule.tripDateStr) <= :toDate AND DATE(r.schedule.tripDateStr) >= :fromDate AND r.isPaymentCompleted = true AND r.isCancelled = false")
+    List<Reservation> findReservationsByUserIdAndDateRange(int userId, Date fromDate, Date toDate);
 }

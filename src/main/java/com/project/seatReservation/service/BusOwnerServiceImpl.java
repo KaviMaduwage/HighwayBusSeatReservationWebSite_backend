@@ -4,6 +4,7 @@ import com.project.seatReservation.dao.BusOwnerDao;
 import com.project.seatReservation.model.BusOwner;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -32,5 +33,11 @@ public class BusOwnerServiceImpl implements BusOwnerService{
     @Override
     public List<BusOwner> getAllBusOwners() {
         return busOwnerDao.getAllBusOwners();
+    }
+
+    @Override
+    @Transactional
+    public void updateBusOwner(BusOwner busOwner) {
+        busOwnerDao.save(busOwner);
     }
 }

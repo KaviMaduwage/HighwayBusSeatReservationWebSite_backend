@@ -45,5 +45,10 @@ public class PassengerServiceImpl implements PassengerService{
         passengerDao.save(passenger);
     }
 
+    @Override
+    public List<Passenger> findAllPassengers() {
+        return passengerDao.findAll();
+    }
+
 
 }

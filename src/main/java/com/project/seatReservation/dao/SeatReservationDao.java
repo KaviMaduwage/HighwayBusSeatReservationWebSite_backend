@@ -27,4 +27,10 @@ public interface SeatReservationDao extends JpaRepository<SeatReservation,Intege
     @Query("SELECT sr FROM SeatReservation sr WHERE sr.status='Cancelled' AND sr.reservation.passenger.user.userId = :userId")
 
     List<SeatReservation> getCancelledReservations(int userId);
+
+    @Query("SELECT sr FROM SeatReservation sr WHERE sr.status='Success' AND DATE(sr.reservation.schedule.tripDateStr) >= :date")
+    List<SeatReservation> findAllUpcomingReservations(Date date);
+
+    @Query("SELECT sr FROM SeatReservation sr WHERE sr.status='Success' AND DATE(sr.reservation.schedule.tripDateStr) >= :date AND sr.reservation.schedule.bus.busOwner.busOwnerId = :busOwnerId")
+    List<SeatReservation> findAllUpcomingReservationsByTravelService(int busOwnerId, Date date);
 }
