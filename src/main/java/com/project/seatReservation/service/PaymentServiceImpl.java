@@ -64,7 +64,6 @@ public class PaymentServiceImpl implements PaymentService{
                 .setPaymentIntentData(SessionCreateParams.PaymentIntentData.builder()
                         .putMetadata("reservation_ids", revIds)
                         .putMetadata("userId", String.valueOf(userId))
-                        // Add more metadata as needed
                         .build())
 
 

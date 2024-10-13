@@ -70,10 +70,9 @@ public class ScheduleTasks {
     @Scheduled(fixedRate = 15 * 60 * 1000)
     public void sendNotifications(){
         LocalTime currentTime = LocalTime.now();
-        //LocalTime timeBeforeTwoHours = currentTime.minusHours(2);
+
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-        //String timeBeforeTwoHoursStr = timeBeforeTwoHours.format(dateTimeFormatter);
         Date currentDate = new Date();
 
         List<Schedule> scheduleList = scheduleService.findScheduleByDate(currentDate);
@@ -148,7 +147,7 @@ public class ScheduleTasks {
         if(scheduleList != null && !scheduleList.isEmpty()){
             Schedule s = scheduleList.get(0);
             int allSeats = s.getBus().getNoOfSeats();
-            List<Reservation> reservationList = reservationService.findReservationsByScheduleId(scheduleId);
+            List<SeatReservation> reservationList = reservationService.findReservedSeatsByScheduleId(scheduleId);
 
             availableSeat = allSeats - reservationList.size();
             availableSeatsStr = reservationList.size() +"/"+allSeats;
