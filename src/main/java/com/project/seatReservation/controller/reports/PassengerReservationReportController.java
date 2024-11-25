@@ -113,8 +113,4 @@ public class PassengerReservationReportController {
 
 
     }
-
-    public void test(){
-        int x = 10;
-    }
 }
